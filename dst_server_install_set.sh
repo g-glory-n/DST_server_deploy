@@ -190,25 +190,25 @@ function install_dst()
 function dst_master_start()
 {
     cd $dst_dir
-    screen -S dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+    [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')" != "" ]] || screen -S dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
 }
 
 function dst_caves_start()
 {
     cd $dst_dir
-    screen -S dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+    [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')" != "" ]] || screen -S dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
 }
 
 
 
 function dst_master_stop()
 {
-     sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')
+     [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')
 }
 
 function dst_caves_stop()
 {
-     sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')
+     [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')
 }
 
 
@@ -252,20 +252,19 @@ function loop()
     while true
     do
         option=$(whiptail --title "command select" --checklist \
-        "please select the action instruction" 15 40 8 \
-        "dst config" "配置饥荒服务" off \
+        "" 17 43 11 \
         "start master" "开启森林世界" off \
         "start caves" "开启洞穴世界" off \
         "stop master" "关闭森林世界" off \
         "stop caves" "关闭洞穴世界" off \
-        "update dst" "更新饥荒服务" off \
-        "update steam" "更新 steam" off \
-        "uninstall all" "卸载清除" off 3>&1 1>&2 2>&3)
+        "dynamic update" "关闭更新重启" off \
+        "DST configure" "配置 DST" off \
+        "update DST" "更新 DST" off \
+        "update steamcmd" "更新 steam" off \
+        "help" "帮助文档" off \
+        "uninstall clean" "卸载清除" off \
+        "exit" "退出脚本" off 3>&1 1>&2 2>&3)
 
-        if [[ "$option" =~ "dst config" ]]
-        then
-            dst_set
-        fi
 
         if [[ "$option" =~ "start master" ]]
         then
@@ -287,22 +286,51 @@ function loop()
             dst_caves_stop
         fi
         
-        if [[ "$option" =~ "update dst" ]]
+        if [[ "$option" =~ "dynamic update" ]]
         then
+            dst_master_stop
+            dst_caves_stop
+            update_dst
+            dst_master_start
+            dst_caves_start
+        fi
+
+        if [[ "$option" =~ "DST config" ]]
+        then
+            dst_set
+        fi
+
+        if [[ "$option" =~ "update DST" ]]
+        then
+            dst_master_stop
+            dst_caves_stop
             update_dst
         fi
         
-        if [[ "$option" =~ "update steam" ]]
+        if [[ "$option" =~ "update steamcmd" ]]
         then
+            dst_master_stop
+            dst_caves_stop
             update_steamcmd
         fi
 
-        if [[ "$option" =~ "uninstall all" ]]
+        if [[ "$option" =~ "help" ]]
+        then
+            whiptail --title "help document" --msgbox "1. 请在生成 DST 世界前，配置世界资源，否则无效。\n2. 更新 DST server 或者 steamcmd 将会关闭 DST 服务器。\n3. 脚本不会重复开启服务器。\n4. BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com" 10 60
+            # continue
+        fi
+
+        if [[ "$option" =~ "uninstall clean" ]]
         then
             uninstall
         fi
-        
-        if [[ "$option" != "" ]]
+
+        if [[ "$option" =~ "exit" ]]
+        then
+            exit 0
+        fi
+
+        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]]
         then
             {
             for ((i = 0 ; i <= 100 ; i+=10))
@@ -316,17 +344,22 @@ function loop()
 }
 
 
+
 function init_loop()
 {
-    get_root
-    install_rely
-    install_steamcmd
-    install_dst
-    dst_config_init
+    if whiptail --title "select install" --yes-button "install" --no-button "exit"  --yesno "检测到系统未安装 DST server，是否在用户根目录（install location: ~/steam_dst/, setting files location: ~/.klei/）安装?" 10 60
+    then
+        get_root
+        install_rely
+        install_steamcmd
+        install_dst
+        dst_config_init
 
-    loop
+        loop
+    else
+        exit 0
+    fi
 }
-
 
 
 
@@ -342,9 +375,6 @@ then
 else
     init_loop
 fi
-
-
-
 
 
 
