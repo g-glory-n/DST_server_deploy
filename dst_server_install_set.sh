@@ -116,9 +116,9 @@ function install_rely()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo yum -y install glibc.i686 libstdc++.i686 libcurl.i686 screen
-        else
-            sudo yum -y install glibc libstdc++ libcurl screen
+            sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen
+        else                     
+            sudo yum install -y glibc libstdc++ libcurl screen
         fi
     
     fi
@@ -135,9 +135,11 @@ function uninstall()
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
             sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen
+	    sudo apt-get clean
             sudo apt-get autoclean
         else
             sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen
+	    sudo apt-get clean
             sudo apt-get autoclean
         fi
     
