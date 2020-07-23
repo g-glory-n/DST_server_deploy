@@ -22,7 +22,7 @@ function welcome()
     fi
     
     # 规范程序执行方式（./file_name.sh or bash ./file_name.sh）。
-    exe_file_name="dst_set.sh"
+    exe_file_name="dst_server_install_set.sh"
     if [ "$0" != "./$exe_file_name" ] && [ "$0" != "bash ./exe_file_name" ]
     then
     	printf "\n"
@@ -103,10 +103,10 @@ function install_rely()
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
             sudo apt-get update
-            sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 screen
+            sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen
         else
             sudo apt-get update
-            sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev screen
+            sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen
         fi
     
     fi
@@ -134,10 +134,10 @@ function uninstall()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo apt-get remove libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 screen
+            sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen
             sudo apt-get autoclean
         else
-            sudo apt-get remove libstdc++6 libgcc1 libcurl4-gnutls-dev screen
+            sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen
             sudo apt-get autoclean
         fi
     
@@ -148,14 +148,18 @@ function uninstall()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo yum remove glibc.i686 libstdc++.i686 libcurl.i686 screen
+            sudo yum remove -y glibc.i686 libstdc++.i686 libcurl.i686 screen
             sudo yum clean
         else
-            sudo yum remove glibc libstdc++ libcurl screen
+            sudo yum remove -y glibc libstdc++ libcurl screen
             sudo yum clean
         fi
     
     fi
+
+    cd $HOME
+    rm -rf ./Steam/ ./.klei/ ./steam_dst/
+    sync && sync && sync
 }
 
 
@@ -189,35 +193,47 @@ function install_dst()
 
 function dst_master_start()
 {
-    cd $dst_dir
-    [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')" != "" ]] || screen -S dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+    cd $dst_dir/bin/
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')" == "" ]]
+    then
+        screen -dmS dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+    fi
 }
 
 function dst_caves_start()
 {
-    cd $dst_dir
-    [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')" != "" ]] || screen -S dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+    cd $dst_dir/bin/
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')" == "" ]]
+    then
+        screen -dmS dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+    fi
 }
 
 
 
 function dst_master_stop()
 {
-     [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | awk '{print $2}')
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')" != "" ]]
+    then
+        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')
+    fi
 }
 
 function dst_caves_stop()
 {
-     [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | awk '{print $2}')
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')" != "" ]]
+    then
+        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')
+    fi
 }
 
 
 
 function update_steamcmd()
 {
-    cd $steam_dir
-    rm -rf ./*
-    install_steamcmd
+    cd $steam_dir && rm -rf ./*
+    cd $HOME && rm -rf ./Steam/
+    install_steamcmd && cd $steam_dir && ./steamcmd.sh +exit
 }
 
 
@@ -233,8 +249,9 @@ function update_dst()
 function dst_config_init()
 {
     cd $script_root_dir
-    mv ./.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua $dst_dir/mods/
-    mv ./.klei/ $HOME/
+    cp ./.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua $dst_dir/mods/
+    cp -r ./.klei/ $HOME/
+    rm -rf $HOME/.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua
 }
 
 
@@ -297,6 +314,8 @@ function loop()
 
         if [[ "$option" =~ "DST config" ]]
         then
+            dst_master_stop
+            dst_caves_stop
             dst_set
         fi
 
@@ -316,13 +335,14 @@ function loop()
 
         if [[ "$option" =~ "help" ]]
         then
-            whiptail --title "help document" --msgbox "1. 请在生成 DST 世界前，配置世界资源，否则无效。\n2. 更新 DST server 或者 steamcmd 将会关闭 DST 服务器。\n3. 脚本不会重复开启服务器。\n4. BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com" 10 60
+		whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启森林，开启洞穴，退出。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新 mod），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭饥荒服务器（森林和洞穴）。\n\n5：脚本只会开启单个森林和洞穴服务器，如需开启多个森林或洞穴请自行配置。\n\n6：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 20 60
             # continue
         fi
 
         if [[ "$option" =~ "uninstall clean" ]]
         then
             uninstall
+	    exit 0
         fi
 
         if [[ "$option" =~ "exit" ]]
@@ -347,7 +367,7 @@ function loop()
 
 function init_loop()
 {
-    if whiptail --title "select install" --yes-button "install" --no-button "exit"  --yesno "检测到系统未安装 DST server，是否在用户根目录（install location: ~/steam_dst/, setting files location: ~/.klei/）安装?" 10 60
+    if whiptail --title "whether to install?" --yes-button "install" --no-button "exit"  --yesno "             install location: ~/steam_dst/\n\n          DST setting files location: ~/.klei/\n\n          steam rely files location: ~/Steam/" 12 60
     then
         get_root
         install_rely
@@ -363,11 +383,7 @@ function init_loop()
 
 
 
-loop
-exit 0
-
-
-
+welcome
 install_judge
 if [ "$has_install" = "yes" ]
 then
