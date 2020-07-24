@@ -10,14 +10,14 @@ return {
         world_size = "huge",                    -- 创世界大小："small", "medium", "default", "huge"
         branching = "default",                  -- 创世界分支："never", "least", "default", "most"
         loop = "default",                       -- 创世界循环："never", "default", "always"
-        weather = "rare",                       -- 雨
-        earthquakes = "rare",                   -- 地震
+        weather = "default",                    -- 雨
+        earthquakes = "default",                -- 地震
         regrowth = "default",                   -- 世界再生："veryslow", "slow", "default", "fast", "veryfast"
         touchstone = "default",                 -- 试金石
-        boons = "default",                      -- 失败的冒险家
+        boons = "often",                        -- 失败的冒险家
         cavelight = "slow",                     -- 洞穴光照："veryslow", "slow", "default", "fast", "veryfast"
         disease_delay="none",                   -- 疾病："none", "random", "slow", "default", "fast"
-        prefabswaps_start = "default",          -- 开始资源多样化："classic", "default", "highly random"
+        prefabswaps_start = "highly random",    -- 开始资源多样化："classic", "default", "highly random"
   
         -- 洞穴资源
         grass = "default",                      -- 草
@@ -51,11 +51,11 @@ return {
         tentacles = "default",                  -- 触手
         chess = "default",                      -- 发条装置
         lureplants = "default",                 -- 食人花
-        walrus = "default",                     -- 海象营地
+        -- walrus = "default",                  -- 海象营地
         liefs = "default",                      -- 树精守卫
         bats = "default",                       -- 蝙蝠
         fissure = "rare",                       -- 梦魇裂隙
         wormattacks="rare",                     -- 洞穴蠕虫攻击
-        worms = "default",                      -- 洞穴蠕虫
+        worms = "rare",                         -- 洞穴蠕虫
     },
 }

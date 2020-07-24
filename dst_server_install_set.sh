@@ -32,7 +32,7 @@ function welcome()
     fi
     
     # 欢迎界面。
-    whiptail --title "welcome" --msgbox "         description: deploy DST linux server\n\n                   author: g-glory-n\n                   date: 2020.07.10\n" 10 60
+    whiptail --title "welcome" --msgbox "         description: deploy DST linux server\n\n               website: www.g-glory-n.top\n                   author: g-glory-n\n                   date: 2020.07.10" 12 60
 }
 
 
@@ -260,7 +260,7 @@ function dst_config_init()
 
 function dst_set()
 {
-    echo "temporary does not support!"
+	echo $(whiptail --title "token config" --inputbox "" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
 }
 
 
@@ -369,9 +369,9 @@ function loop()
 
 function init_loop()
 {
-    if whiptail --title "whether to install?" --yes-button "install" --no-button "exit"  --yesno "             install location: ~/steam_dst/\n\n          DST setting files location: ~/.klei/\n\n          steam rely files location: ~/Steam/" 12 60
-    then
-        get_root
+    if whiptail --title "whether to install?" --yes-button "install" --no-button "exit"  --yesno "             install location: ~/steam_dst/\n\n          DST setting files location: ~/.klei/\n\n          steam rely files location: ~/Steam/\n\n       tested environment: Debian 8/9 CentOS 6/7" 14 60
+    then                                                                                            
+        get_root                                                                                    
         install_rely
         install_steamcmd
         install_dst
