@@ -103,10 +103,10 @@ function install_rely()
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
             sudo apt-get update
-            sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen
+            sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
         else
             sudo apt-get update
-            sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen
+            sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
         fi
     
     fi
@@ -116,9 +116,9 @@ function install_rely()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen
+            sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
         else                     
-            sudo yum install -y glibc libstdc++ libcurl screen
+            sudo yum install -y glibc libstdc++ libcurl screen vim
         fi
     
     fi
@@ -260,7 +260,52 @@ function dst_config_init()
 
 function dst_set()
 {
-	echo $(whiptail --title "token config" --inputbox "" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
+    dst_set_option=$(whiptail --title "command select" --checklist \
+    "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！" 18 40 7 \
+    "set token" "配置 token" off \
+    "set master" "配置森林世界" off \
+    "set caves" "配置洞穴世界" off \
+    "download mod" "下载 mod" off \
+    "onoff mod" "启用关闭 mod" off \
+    "set mod" "配置 mod" off \
+    "update mod" "更新 mod" off 3>&1 1>&2 2>&3)
+
+    if [[ "$dst_set_option" =~ "set token" ]]
+    then
+        echo $(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
+    fi
+
+    if [[ "$dst_set_option" =~ "set master" ]]
+    then
+        whiptail --title "message" --msgbox "               你将编辑森林资源配置文件。" 10 60
+        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Master/worldgenoverride.lua
+    fi
+
+    if [[ "$dst_set_option" =~ "set caves" ]]
+    then
+        whiptail --title "message" --msgbox "               你将编辑洞穴资源配置文件。" 10 60
+        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Caves/worldgenoverride.lua
+    fi
+
+    if [[ "$dst_set_option" =~ "download mod" ]]
+    then
+        whiptail --title "message" --msgbox "                你将编辑需要下载的 mod。" 10 60
+    fi
+
+    if [[ "$dst_set_option" =~ "onoff mod" ]]
+    then
+        whiptail --title "message" --msgbox "                你将编辑开启或关闭 mod。" 10 60
+    fi
+
+    if [[ "$dst_set_option" =~ "set mod" ]]
+    then
+        whiptail --title "message" --msgbox "                 你将编辑配置 mod 选项。" 10 60
+    fi
+
+    if [[ "$dst_set_option" =~ "update mod" ]]
+    then
+        whiptail --title "message" --msgbox "                   你将更新所有 mod。" 10 60
+    fi
 }
 
 
