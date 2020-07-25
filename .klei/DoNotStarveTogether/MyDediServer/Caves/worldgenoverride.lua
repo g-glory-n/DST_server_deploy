@@ -51,7 +51,6 @@ return {
         tentacles = "default",                  -- 触手
         chess = "default",                      -- 发条装置
         lureplants = "default",                 -- 食人花
-        -- walrus = "default",                  -- 海象营地
         liefs = "default",                      -- 树精守卫
         bats = "default",                       -- 蝙蝠
         fissure = "rare",                       -- 梦魇裂隙
