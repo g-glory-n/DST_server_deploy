@@ -251,9 +251,9 @@ function update_dst()
 function dst_config_init()
 {
     cd $script_root_dir
-    cp ./.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua $dst_dir/mods/
+    cp ./.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua $dst_dir/mods/
     cp -r ./.klei/ $HOME/
-    rm -rf $HOME/.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua
+    rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
 }
 
 
@@ -261,50 +261,68 @@ function dst_config_init()
 function dst_set()
 {
     dst_set_option=$(whiptail --title "command select" --checklist \
-    "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！" 18 40 7 \
+    "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！" 18 40 8 \
+    "init conf" "初始化配置" off \
+    "cre_new_wor" "创建新世界" off \
     "set token" "配置 token" off \
     "set master" "配置森林世界" off \
     "set caves" "配置洞穴世界" off \
     "download mod" "下载 mod" off \
-    "onoff mod" "启用关闭 mod" off \
-    "set mod" "配置 mod" off \
+    "on_of_s mod" "启关配置 mod" off \
     "update mod" "更新 mod" off 3>&1 1>&2 2>&3)
+
+    if [[ "$dst_set_option" =~ "init conf" ]]
+    then
+        whiptail --title "message" --yesno "         你将删除现有配置文件，创建初始配置文件。" 10 60
+        rm -rf $HOME/.klei/
+        cd $script_root_dir
+        cp ./.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua $dst_dir/mods/
+        cp -r ./.klei/ $HOME/
+        rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
+    fi
+
+    if [[ "$dst_set_option" =~ "cre_new_wor" ]]
+    then
+        whiptail --title "message" --msgbox "" 10 60
+    fi
 
     if [[ "$dst_set_option" =~ "set token" ]]
     then
+        whiptail --title "message" --yesno "                  你将配置 token 文件。" 10 60
         echo $(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
     fi
 
     if [[ "$dst_set_option" =~ "set master" ]]
     then
-        whiptail --title "message" --msgbox "               你将编辑森林资源配置文件。" 10 60
+        whiptail --title "message" --yesno "               你将编辑森林资源配置文件。" 10 60
         vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Master/worldgenoverride.lua
     fi
 
     if [[ "$dst_set_option" =~ "set caves" ]]
     then
-        whiptail --title "message" --msgbox "               你将编辑洞穴资源配置文件。" 10 60
+        whiptail --title "message" --yesno "               你将编辑洞穴资源配置文件。" 10 60
         vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Caves/worldgenoverride.lua
     fi
 
     if [[ "$dst_set_option" =~ "download mod" ]]
     then
-        whiptail --title "message" --msgbox "                你将编辑需要下载的 mod。" 10 60
+        whiptail --title "message" --yesno "                你将编辑需要下载的 mod。" 10 60
+	vim $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
     fi
 
-    if [[ "$dst_set_option" =~ "onoff mod" ]]
+    if [[ "$dst_set_option" =~ "on_of_s mod" ]]
     then
-        whiptail --title "message" --msgbox "                你将编辑开启或关闭 mod。" 10 60
-    fi
-
-    if [[ "$dst_set_option" =~ "set mod" ]]
-    then
-        whiptail --title "message" --msgbox "                 你将编辑配置 mod 选项。" 10 60
+        whiptail --title "message" --yesno "配置 mod 比较繁杂，推荐方法：\n用饥荒客户端配置创建新世界，\n然后拷贝用户配置文件夹中的 modoverrides.lua 到 \n\n$HOME/.klei/DoNotStarveTogether/世界配置文件夹(默认：MyDediServer)/Master(or Caves)/modoverrides.lua" 12 60
     fi
 
     if [[ "$dst_set_option" =~ "update mod" ]]
     then
-        whiptail --title "message" --msgbox "                   你将更新所有 mod。" 10 60
+        whiptail --title "message" --yesno "                   你将更新所有 mod。" 10 60
+        dst_master_stop
+        dst_caves_stop
+        update_dst
+        dst_master_start
+        dst_caves_start
     fi
 }
 
@@ -382,7 +400,7 @@ function loop()
 
         if [[ "$option" =~ "help" ]]
         then
-		whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启森林，开启洞穴，退出。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新 mod），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭饥荒服务器（森林和洞穴）。\n\n5：脚本只会开启单个森林和洞穴服务器，如需开启多个森林或洞穴请自行配置。\n\n6：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 20 60
+		whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启森林，开启洞穴，退出。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新 mod），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭饥荒服务器（森林和洞穴）。\n\n5：有些选项（dynamic update, update mod）会重启森林和洞穴（未开启洞穴会导致让洞穴开启）。\n\n6：脚本只会开启单个森林和洞穴服务器，如需开启多个森林或洞穴请自行配置。\n\n7：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n8：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
             # continue
         fi
 

@@ -12,6 +12,8 @@
  
 
 
+
+-- mod_id 可从 steam 饥荒社区创意工坊中 mod 的 url 的 id=xxx... 得到。
 ServerModSetup("462372013")           -- always fresh
 ServerModSetup("347079953")           -- display food values
 ServerModSetup("661253977")           -- 灵魂携带物品
@@ -32,11 +34,16 @@ ServerModSetup("1207269058")          -- 简易血条
 ServerModSetup("656256171")           -- slot machine(老虎机)
 ServerModSetup("623749604")           -- storeroom(地窖)
 ServerModSetup("356435289")           -- 蜂蜜鱼塘
+ServerModSetup("1079538195")          -- 移动盒子
 
 ServerModSetup("1378549454")          -- [API]gem core
 
 ServerModSetup("1467214795")          -- island adventyres(海难 mod)
 ServerModSetup("1467200656")          -- island adventures assets
+
+ServerModSetup("1505270912")          -- Tropical Experience | The Volcano Biome
+ServerModSetup("1754423272")          -- Tropical Experience Return of Them Complement
+ServerModSetup("1754437018")          -- Tropical Experience Return of Them Complement 2
 
 ServerModSetup("1699194522")          -- 神话书说角色
 ServerModSetup("1991746508")          -- 神话书说
