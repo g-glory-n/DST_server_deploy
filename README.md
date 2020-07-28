@@ -1,5 +1,4 @@
 # 饥荒联机版 linux 服务器部署脚本。
-DST server deployment configuration graphical script
 ![](https://www.g-glory-n.top/wp-content/uploads/2020/07/dst_1.png "dst_1")
 ![](https://www.g-glory-n.top/wp-content/uploads/2020/07/dst_2.png "dst_1")
 ![](https://www.g-glory-n.top/wp-content/uploads/2020/07/dst_12.png "dst_1")
