@@ -160,7 +160,7 @@ function uninstall()
     fi
 
     cd $HOME
-    rm -rf ./Steam/ ./.klei/ ./steam_dst/
+    rm -rf ./Steam/ ./.klei/ ./steam_dst/ ./.steam/
     sync && sync && sync
 }
 
