@@ -196,7 +196,7 @@ function install_dst()
 function dst_master_start()
 {
     cd $dst_dir/bin/
-    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')" == "" ]]
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
         screen -dmS dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
     fi
@@ -205,7 +205,7 @@ function dst_master_start()
 function dst_caves_start()
 {
     cd $dst_dir/bin/
-    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')" == "" ]]
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
         screen -dmS dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
     fi
@@ -215,17 +215,25 @@ function dst_caves_start()
 
 function dst_master_stop()
 {
-    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')" != "" ]]
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | awk '{print $2}')
+        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')
     fi
 }
 
 function dst_caves_stop()
 {
-    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')" != "" ]]
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | awk '{print $2}')
+        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')
+    fi
+}
+
+function dst_stop_all()
+{
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
+    then
+        sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')
     fi
 }
 
@@ -251,97 +259,129 @@ function update_dst()
 function dst_config_init()
 {
     cd $script_root_dir
-    cp ./.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua $dst_dir/mods/
+    cp ./.klei/DoNotStarveTogether/MyDediServer/dedicated_server_mods_setup.lua $dst_dir/mods/
     cp -r ./.klei/ $HOME/
     rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
 }
 
 
 
+function whiptail_progress_bar()
+{
+    {
+    for ((i = 0 ; i <= 100 ; i+=10))
+    do
+        sleep 0.1
+        echo $i
+    done
+    } | whiptail --gauge "Please wait while setting" 6 60 0
+}
+
+
+
 function dst_set()
 {
-    dst_set_option=$(whiptail --title "command select" --checklist \
-    "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！" 20 40 11 \
-    "init conf" "初始化配置" off \
-    "cre_new_wor" "创建新世界" off \
-    "set token" "配置 token" off \
-    "set master" "配置森林世界" off \
-    "set caves" "配置洞穴世界" off \
-    "set block" "配置黑名单" off \
-    "set white" "配置白名单" off \
-    "set admin" "配置管理员" off \
-    "download mod" "下载 mod" off \
-    "on_of_s mod" "启关配置 mod" off \
-    "update mod" "更新 mod" off 3>&1 1>&2 2>&3)
+    while true
+    do
+        dst_set_option=$(whiptail --title "command select" --checklist "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！\n\n当前存档指向：$cluster_name" 25 40 12 \
+        "init conf" "初始化配置" off \
+        "cre_new_wor" "创建新世界" off \
+        "set token" "配置 token" off \
+        "set master" "配置地上世界" off \
+        "set caves" "配置地下世界" off \
+        "set block" "配置黑名单" off \
+        "set white" "配置白名单" off \
+        "set admin" "配置管理员" off \
+        "download mod" "编辑下载模组" off \
+        "on_of_s mod" "启关配置模组" off \
+        "update mod" "更新所有模组" off \
+        "return" "返回上一层" off 3>&1 1>&2 2>&3)
 
-    if [[ "$dst_set_option" =~ "init conf" ]]
-    then
-        whiptail --title "message" --yesno "    你将停止森林和洞穴服务并删除现有配置文件，创建初始配置文件。" 10 60
-        sleep 5
-        rm -rf $HOME/.klei/
-        cd $script_root_dir
-        cp ./.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua $dst_dir/mods/
-        cp -r ./.klei/ $HOME/
-        rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
-    fi
+        if [[ "$dst_set_option" =~ "init conf" ]]
+        then
+            whiptail --title "message" --yesno "    你将停止地上和地下服务并删除现有配置文件，创建初始配置文件。" 10 60
+            sleep 3
+            rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/
+            mkdir -p $HOME/.klei/DoNotStarveTogether/$cluster_name/
+            cd $script_root_dir
+            cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$cluster_name/
+            rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
+        fi
 
-    if [[ "$dst_set_option" =~ "cre_new_wor" ]]
-    then
-        whiptail --title "message" --msgbox "" 10 60
-    fi
+        if [[ "$dst_set_option" =~ "cre_new_wor" ]]
+        then
+            whiptail --title "message" --msgbox "                       创建新档。" 10 60
+            new_cluster_name=$(whiptail --title "新档名" --inputbox "请务必保证，输入存档名不包含于已有存档名集合！\n\n列出所有已有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n部分已有存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 3>&1 1>&2 2>&3)
+            mkdir -p $HOME/.klei/DoNotStarveTogether/$new_cluster_name
+            cd $script_root_dir
+            cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$new_cluster_name/
+            rm -rf $HOME/.klei/DoNotStarveTogether/$new_cluster_name/dedicated_server_mods_setup.lua
+        fi
 
-    if [[ "$dst_set_option" =~ "set token" ]]
-    then
-        whiptail --title "message" --yesno "                  你将配置 token 文件。" 10 60
-        echo $(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
-    fi
+        if [[ "$dst_set_option" =~ "set token" ]]
+        then
+            whiptail --title "message" --yesno "                  你将配置 token 文件。" 10 60
+            echo $(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
+        fi
 
-    if [[ "$dst_set_option" =~ "set master" ]]
-    then
-        whiptail --title "message" --yesno "               你将编辑森林资源配置文件。" 10 60
-        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Master/worldgenoverride.lua
-    fi
+        if [[ "$dst_set_option" =~ "set master" ]]
+        then
+            whiptail --title "message" --yesno "               你将编辑地上资源配置文件。" 10 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Master/worldgenoverride.lua
+        fi
 
-    if [[ "$dst_set_option" =~ "set caves" ]]
-    then
-        whiptail --title "message" --yesno "               你将编辑洞穴资源配置文件。" 10 60
-        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Caves/worldgenoverride.lua
-    fi
+        if [[ "$dst_set_option" =~ "set caves" ]]
+        then
+            whiptail --title "message" --yesno "               你将编辑地下资源配置文件。" 10 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Caves/worldgenoverride.lua
+        fi
 
-    if [[ "$dst_set_option" =~ "set block" ]]
-    then
-        whiptail --title "message" --yesno "你将编辑黑名单，日志（server_log.txt）中找对应的 SteamID64，添加到文件。" 10 60
-        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/blocklist.txt
-    fi
+        if [[ "$dst_set_option" =~ "set block" ]]
+        then
+            whiptail --title "message" --yesno "你将编辑黑名单，日志（server_log.txt）中找对应的 SteamID64，添加到文件。" 10 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/blocklist.txt
+        fi
 
-    if [[ "$dst_set_option" =~ "set white" ]]
-    then
-        whiptail --title "message" --yesno "你将编辑白名单（服务器为白名单玩家保留席位）。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
-        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/whitelist.txt
-    fi
+        if [[ "$dst_set_option" =~ "set white" ]]
+        then
+            whiptail --title "message" --yesno "你将编辑白名单（服务器为白名单玩家保留席位）。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/whitelist.txt
+        fi
 
-    if [[ "$dst_set_option" =~ "set admin" ]]
-    then
-        whiptail --title "message" --yesno "你将编辑管理员（user_id）名单。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
-        vim $HOME/.klei/DoNotStarveTogether/$cluster_name/adminlist.txt
-    fi
+        if [[ "$dst_set_option" =~ "set admin" ]]
+        then
+            whiptail --title "message" --yesno "你将编辑管理员（user_id）名单。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/adminlist.txt
+        fi
 
-    if [[ "$dst_set_option" =~ "download mod" ]]
-    then
-        whiptail --title "message" --yesno "                你将编辑需要下载的 mod。" 10 60
-	vim $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
-    fi
+        if [[ "$dst_set_option" =~ "download mod" ]]
+        then
+            whiptail --title "message" --yesno "                你将编辑需要下载的 mod。" 10 60
+            vim $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
+        fi
 
-    if [[ "$dst_set_option" =~ "on_of_s mod" ]]
-    then
-        whiptail --title "message" --msgbox "配置 mod 比较繁杂，推荐方法：\n用饥荒客户端配置创建新世界，\n然后拷贝用户配置文件夹中的 modoverrides.lua 到 \n\n$HOME/.klei/DoNotStarveTogether/世界配置文件夹(默认：MyDediServer)/Master(or Caves)/modoverrides.lua" 12 60
-    fi
+        if [[ "$dst_set_option" =~ "on_of_s mod" ]]
+        then
+            whiptail --title "message" --msgbox "配置 mod 比较繁杂，推荐方法：\n用饥荒客户端配置创建新世界，\n然后拷贝用户配置文件夹中的 modoverrides.lua 到 \n\n$HOME/.klei/DoNotStarveTogether/世界配置文件夹(默认：MyDediServer)/Master(or Caves)/modoverrides.lua" 12 60
+        fi
 
-    if [[ "$dst_set_option" =~ "update mod" ]]
-    then
-        whiptail --title "message" --yesno "                   你将更新所有 mod。" 10 60
-	whiptail --title "message" --msgbox "                   重启游戏服务即可。" 10 60
-    fi
+        if [[ "$dst_set_option" =~ "update mod" ]]
+        then
+            whiptail --title "message" --yesno "                   你将更新所有 mod。" 10 60
+            whiptail --title "message" --msgbox "                   重启游戏服务即可。" 10 60
+        fi
+
+        if [[ "$dst_set_option" =~ "return" ]]
+        then
+            return
+        fi
+
+        if [[ "$dst_set_option" != "" ]]
+        then
+            whiptail_progress_bar
+        fi
+
+    done
 }
 
 
@@ -351,77 +391,83 @@ function loop()
     get_root
     while true
     do
-        option=$(whiptail --title "command select" --checklist \
-        "" 17 43 11 \
-        "start master" "开启森林世界" off \
-        "start caves" "开启洞穴世界" off \
-        "stop master" "关闭森林世界" off \
-        "stop caves" "关闭洞穴世界" off \
-        "dynamic update" "关闭更新重启" off \
-        "DST configure" "配置 DST" off \
-        "update DST" "更新 DST" off \
-        "update steamcmd" "更新 steam" off \
-        "help" "帮助文档" off \
-        "uninstall clean" "卸载清除" off \
-        "exit" "退出脚本" off 3>&1 1>&2 2>&3)
+        option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
+        "" 18 43 12 \
+        "cluster name" "设置目标存档" off \
+        "dst config" "配置饥荒服务" off \
+        "start master" "开启地上世界" off \
+        "start caves" "开启地下世界" off \
+        "stop master" "关闭地上世界" off \
+        "stop caves" "关闭地下世界" off \
+        "stop all" "关闭所有世界" off \
+        "update dst" "更新饥荒服务" off \
+        "update steamcmd" "更新服务平台" off \
+        "help" "脚本帮助文档" off \
+        "uninstall clean" "卸载清除依赖" off \
+        "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
 
 
-        if [[ "$option" =~ "start master" ]]
+        if [[ "$option" =~ "cluster name" ]]
         then
-            dst_master_start
+            cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+        fi
+
+        if [[ "$option" =~ "dst config" ]]
+        then
+            whiptail --title "message" --yesno "       配置过程将停止地上和地下服务，需要手动启动。" 10 60
+            dst_stop_all
+            whiptail_progress_bar
+            dst_set
         fi
         
+        if [[ "$option" =~ "start master" ]]
+        then
+            whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
+            dst_master_start
+        fi
+
         if [[ "$option" =~ "start caves" ]]
         then
+            whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地下服务。" 10 60
             dst_caves_start
         fi
         
         if [[ "$option" =~ "stop master" ]]
         then
+            whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地上服务。" 10 60
             dst_master_stop
         fi
         
         if [[ "$option" =~ "stop caves" ]]
         then
+            whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
             dst_caves_stop
+        fi
+
+        if [[ "$option" =~ "stop all" ]]
+        then
+            whiptail --title "stop all server" --yesno "             你将关闭本机所有地上和地下服务。" 10 60
+            dst_stop_all
         fi
         
-        if [[ "$option" =~ "dynamic update" ]]
+        if [[ "$option" =~ "update dst" ]]
         then
-            whiptail --title "message" --yesno "      更新过程将停止森林和洞穴服务器，需要手动启动。" 10 60
-            dst_master_stop
-            dst_caves_stop
-            update_dst
-        fi
-
-        if [[ "$option" =~ "DST configure" ]]
-        then
-            whiptail --title "message" --yesno "      配置过程将停止森林和洞穴服务器，需要手动启动。" 10 60
-            dst_master_stop
-            dst_caves_stop
-            dst_set
-        fi
-
-        if [[ "$option" =~ "update DST" ]]
-        then
-            whiptail --title "message" --yesno "      更新过程将停止森林和洞穴服务器，需要手动启动。" 10 60
-            dst_master_stop
-            dst_caves_stop
+            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
+            dst_stop_all
             update_dst
         fi
         
         if [[ "$option" =~ "update steamcmd" ]]
         then
-            whiptail --title "message" --yesno "      更新过程将停止森林和洞穴服务器，需要手动启动。" 10 60
-            dst_master_stop
-            dst_caves_stop
+            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
+            dst_stop_all
             update_steamcmd
         fi
 
         if [[ "$option" =~ "help" ]]
         then
-            whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启森林，开启洞穴，退出。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新 mod），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭饥荒服务器（森林和洞穴）。\n\n5：有些选项（dynamic update, update mod）会重启森林和洞穴（未开启洞穴会导致让洞穴开启）。\n\n6：脚本只会开启单个森林和洞穴服务器，如需开启多个森林或洞穴请自行配置。\n\n7：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n8：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
-            # continue
+            whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启地上世界，开启地下世界（可选），退出脚本。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新模组），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭所有饥荒服务（地上和地下）。\n\n5：脚本可以创建多个存档，针对不同存档可分别进行配置。\n\n6：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n7：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
+            # continue # 可能导致 exit 无效。
         fi
 
         if [[ "$option" =~ "uninstall clean" ]]
@@ -438,13 +484,7 @@ function loop()
 
         if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]]
         then
-            {
-            for ((i = 0 ; i <= 100 ; i+=10))
-            do
-                sleep 0.1
-                echo $i
-            done
-            } | whiptail --gauge "Please wait while setting" 6 60 0
+            whiptail_progress_bar
         fi
     done
 }
