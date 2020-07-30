@@ -482,7 +482,7 @@ function loop()
             exit 0
         fi
 
-        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]]
+        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]]
         then
             whiptail_progress_bar
         fi
