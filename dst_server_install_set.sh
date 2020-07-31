@@ -239,6 +239,13 @@ function dst_stop_all()
 
 
 
+function backup_archive()
+{
+    cd $HOME/.klei/DoNotStarveTogether/ && tar -cvf $HOME/.klei/$(date +%Y_%m_%d---%H_%M_%S).tar ./
+}
+
+
+
 function update_steamcmd()
 {
     cd $steam_dir && rm -rf ./*
@@ -392,7 +399,7 @@ function loop()
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
-        "" 18 43 12 \
+        "" 20 43 13 \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
         "start master" "开启地上世界" off \
@@ -400,6 +407,7 @@ function loop()
         "stop master" "关闭地上世界" off \
         "stop caves" "关闭地下世界" off \
         "stop all" "关闭所有世界" off \
+        "backup" "创建备份计划" off \
         "update dst" "更新饥荒服务" off \
         "update steamcmd" "更新服务平台" off \
         "help" "脚本帮助文档" off \
@@ -424,6 +432,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
             dst_master_start
+            whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         fi
 
         if [[ "$option" =~ "start caves" ]]
@@ -448,6 +457,13 @@ function loop()
         then
             whiptail --title "stop all server" --yesno "             你将关闭本机所有地上和地下服务。" 10 60
             dst_stop_all
+        fi
+
+        if [[ "$option" =~ "backup" ]]
+        then
+            whiptail --title "backup archive" --yesno "                      备份所有存档。" 10 60
+            backup_archive
+            whiptail --title "backup archive" --yesno "                 存档位置：$HOME/./klei/" 10 60
         fi
         
         if [[ "$option" =~ "update dst" ]]
