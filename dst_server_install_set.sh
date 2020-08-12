@@ -492,6 +492,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地下服务。" 10 60
             dst_caves_start
+            whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         fi
         
         if [[ "$option" =~ "stop master" ]]
