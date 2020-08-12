@@ -424,7 +424,7 @@ function loop()
 {
     get_root
 
-    if [ ! -d $HOME/.klei/DoNotStarveToget/MyDediServer/ ]
+    if [ ! -d $HOME/.klei/DoNotStarveTogether/MyDediServer/ ]
     then
         while true
         do
