@@ -9,6 +9,8 @@ dst_dir="$install_dir/dst"
 start_stop_script_dir="$dst_dir"
 dst_config_dir="$HOME/.klei/DoNotStarveTogether/"
 cluster_name="MyDediServer"
+reset_cluster_name=""
+select_archive_name=""
 
 
 
@@ -241,7 +243,32 @@ function dst_stop_all()
 
 function backup_archive()
 {
-    cd $HOME/.klei/DoNotStarveTogether/ && tar -cvf $HOME/.klei/$(date +%Y_%m_%d---%H_%M_%S).tar ./
+    if [ ! -d $HOME/.klei/backup/ ]
+    then
+        mkdir -p $HOME/.klei/backup/
+    fi
+    cd $HOME/.klei/DoNotStarveTogether/$cluster_name/ && tar -cvf $HOME/.klei/backup/${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar ./
+}
+
+
+
+function restore_archive()
+{
+    if [ ! -d $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/ ]
+    then
+        mkdir -p $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+    else
+        rm -rf $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+        mkdir -p $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+    fi
+    cd $HOME/.klei/backup/ && tar -xvf ./$select_archive_name -C $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+}
+
+
+
+function clean_archive()
+{
+    echo ""
 }
 
 
@@ -318,7 +345,7 @@ function dst_set()
         if [[ "$dst_set_option" =~ "cre_new_wor" ]]
         then
             whiptail --title "message" --msgbox "                       创建新档。" 10 60
-            new_cluster_name=$(whiptail --title "新档名" --inputbox "请务必保证，输入存档名不包含于已有存档名集合！\n\n列出所有已有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n部分已有存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 3>&1 1>&2 2>&3)
+            new_cluster_name=$(whiptail --title "新档名（小于等于 6 个汉字字符或 12 个英文字符）" --inputbox "请务必保证，输入存档名不包含于已有存档名集合！\n\n列出所有已有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n部分已有存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 3>&1 1>&2 2>&3)
             mkdir -p $HOME/.klei/DoNotStarveTogether/$new_cluster_name
             cd $script_root_dir
             cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$new_cluster_name/
@@ -399,7 +426,7 @@ function loop()
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
-        "" 20 43 13 \
+        "" 22 43 15 \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
         "start master" "开启地上世界" off \
@@ -407,7 +434,9 @@ function loop()
         "stop master" "关闭地上世界" off \
         "stop caves" "关闭地下世界" off \
         "stop all" "关闭所有世界" off \
-        "backup" "创建备份计划" off \
+        "backup" "创建存档备份" off \
+        "restore" "恢复存档备份" off \
+        "clean archive" "清除存档备份" off \
         "update dst" "更新饥荒服务" off \
         "update steamcmd" "更新服务平台" off \
         "help" "脚本帮助文档" off \
@@ -417,7 +446,16 @@ function loop()
 
         if [[ "$option" =~ "cluster name" ]]
         then
-            cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+            while true
+            do
+                cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+                if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
+                then
+                    break
+                else
+                    whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
+                fi
+            done
         fi
 
         if [[ "$option" =~ "dst config" ]]
@@ -461,9 +499,45 @@ function loop()
 
         if [[ "$option" =~ "backup" ]]
         then
-            whiptail --title "backup archive" --yesno "                      备份所有存档。" 10 60
+            whiptail --title "存档指向：$cluster_name" --yesno "                      备份指向存档。" 10 60
             backup_archive
-            whiptail --title "backup archive" --yesno "                 存档位置：$HOME/./klei/" 10 60
+            whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
+        fi
+
+        if [[ "$option" =~ "restore" ]]
+        then
+            # echo $option
+            archive_list=
+            for list in $(ls $HOME/.klei/backup/)
+            do
+                temp_list=${list%---*}
+                temp_list=${temp_list%---*}
+                archive_list="$archive_list $list $temp_list off"
+            done
+            # echo -e "$archive_list"
+            select_archive_name=$(whiptail --title "恢复存档" --checklist \
+            "" 20 68 14 \
+            $archive_list 3>&1 1>&2 2>&3)
+            # echo "$select_archive_name"
+            select_archive_name=$(echo "${select_archive_name##\"}")
+            # echo "$select_archive_name"
+            select_archive_name=$(echo "${select_archive_name%\"}")
+            # echo "$select_archive_name"
+
+            if [ ! -z $select_archive_name ]
+            then
+                reset_cluster_name=${select_archive_name%---*}
+                reset_cluster_name=${reset_cluster_name%---*}
+                # echo "$reset_cluster_name"
+                reset_cluster_name=$(whiptail --title "是否重设存档名？" --inputbox "" 10 60 $reset_cluster_name 3>&1 1>&2 2>&3)
+                restore_archive
+            fi
+        fi
+
+        if [[ "$option" =~ "clean archive" ]]
+        then
+            whiptail --title "" --yesno "待开发 ..." 10 60
+            
         fi
         
         if [[ "$option" =~ "update dst" ]]
