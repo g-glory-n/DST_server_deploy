@@ -423,6 +423,21 @@ function dst_set()
 function loop()
 {
     get_root
+
+    if [ ! -d $HOME/.klei/DoNotStarveToget/MyDediServer/ ]
+    then
+        while true
+        do
+            cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+            if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
+            then
+                break
+            else
+                whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
+            fi
+        done
+    fi
+
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
@@ -510,7 +525,8 @@ function loop()
             archive_list=
             for list in $(ls $HOME/.klei/backup/)
             do
-                temp_list=${list%---*}
+                temp_list=${list%.*}
+                temp_list=${temp_list%---*}
                 temp_list=${temp_list%---*}
                 archive_list="$archive_list $list $temp_list off"
             done
@@ -526,7 +542,8 @@ function loop()
 
             if [ ! -z $select_archive_name ]
             then
-                reset_cluster_name=${select_archive_name%---*}
+                reset_cluster_name=${select_archive_name%.*}
+                reset_cluster_name=${reset_cluster_name%---*}
                 reset_cluster_name=${reset_cluster_name%---*}
                 # echo "$reset_cluster_name"
                 reset_cluster_name=$(whiptail --title "是否重设存档名？" --inputbox "" 10 60 $reset_cluster_name 3>&1 1>&2 2>&3)
