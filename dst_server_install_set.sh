@@ -484,13 +484,14 @@ function loop()
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
-        "" 22 43 15 \
+        "" 22 43 16 \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
         "start master" "开启地上世界" off \
         "start caves" "开启地下世界" off \
         "stop master" "关闭地上世界" off \
         "stop caves" "关闭地下世界" off \
+        "show run_info" "显示运行信息" off \
         "stop all" "关闭所有世界" off \
         "backup" "创建存档备份" off \
         "restore" "恢复存档备份" off \
@@ -548,6 +549,25 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
             dst_caves_stop
+        fi
+
+        if [[ "$option" =~ "show run_info" ]]
+        then
+            run_info_list=
+            for list in $(screen -ls | grep dst | awk '{print $1}')
+            do
+                temp_list_0="ID:${list%.*}"
+                temp_list_1="${list}" #################
+                run_info_list="$run_info_list $list $temp_list off"
+            done
+            temp_0=$(whiptail --title "恢复存档" --checklist \
+            "" 20 68 14 \
+            $run_info_list 3>&1 1>&2 2>&3)
+
+            temp_0=${temp_0##\"}
+            temp_0=${temp_0%\"}
+            whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 z 即可。" 10 60
+            sudo screen -r $temp_0
         fi
 
         if [[ "$option" =~ "stop all" ]]
@@ -633,7 +653,7 @@ function loop()
             exit 0
         fi
 
-        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]]
+        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]] && [[ "$option" != "\"show run_info\"" ]]
         then
             whiptail_progress_bar
         fi
