@@ -5,7 +5,7 @@ script_root_dir=$(pwd)
 has_install="no"
 install_dir="$HOME/steam_dst/"
 steam_dir="$install_dir/steam/"
-dst_dir="$install_dir/dst"
+dst_dir="$install_dir/dst/"
 start_stop_script_dir="$dst_dir"
 dst_config_dir="$HOME/.klei/DoNotStarveTogether/"
 cluster_name="MyDediServer"
@@ -146,6 +146,7 @@ function install_rely()
                     exit 1
                 fi
             fi
+            cp /usr/lib/libcurl.so.4 $dst_dir/bin/lib32/libcurl-gnutls.so.4 # 解决方案（启动报错：找不到 libcurl-gnutls.so.4）
         else
             if ! sudo yum install -y glibc libstdc++ libcurl screen vim
             then
@@ -157,6 +158,7 @@ function install_rely()
                     exit 1
                 fi
             fi
+            cp /usr/lib/libcurl.so.4 $dst_dir/bin/lib32/libcurl-gnutls.so.4 # 解决方案（启动报错：找不到 libcurl-gnutls.so.4）
         fi
 
     fi
