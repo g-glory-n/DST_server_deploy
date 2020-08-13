@@ -22,7 +22,7 @@ function welcome()
             echo -e "\n\tplease install whiptail!\n"
             exit 1
     fi
-    
+
     # 规范程序执行方式（./file_name.sh or bash ./file_name.sh）。
     exe_file_name="dst_server_install_set.sh"
     if [ "$0" != "./$exe_file_name" ] && [ "$0" != "bash ./exe_file_name" ]
@@ -32,7 +32,7 @@ function welcome()
     	printf "\n"
     	exit 1
     fi
-    
+
     # 欢迎界面。
     whiptail --title "welcome" --msgbox "         description: deploy DST linux server\n\n               website: www.g-glory-n.top\n                   author: g-glory-n\n                   date: 2020.07.10" 12 60
 }
@@ -54,12 +54,12 @@ function get_root()
             then
     	    PASSWD=$(whiptail --title "get root permission" --passwordbox "input your root password by three chances" 10 60 3>&1 1>&2 2>&3)
             fi
-    
+
             if [ ${i} = "3" ]; then
                 whiptail --title "message" --msgbox "you have tried many times and do not get root permission, the script will exit!" 10 60
-                exit 0
+                exit 1
             fi
-        
+
             sudo -k
             if sudo -lS &> /dev/null << EOF
 ${PASSWD}
@@ -69,16 +69,16 @@ EOF
             else
                 if [ "${i}" != "2" ]
                 then
-                    whiptail --title "get root permission" --msgbox "invalid password, please input corrent password!" 10 60 
+                    whiptail --title "get root permission" --msgbox "invalid password, please input corrent password!" 10 60
                 fi
             fi
         done
-        
+
         echo ${PASSWD} | sudo ls > /dev/null 2>&1
         echo ""
         echo -e "\033[31m\tyou have get root permission!\033[0m"
         echo ""
-    
+
     fi
 }
 
@@ -105,24 +105,60 @@ function install_rely()
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
             sudo apt-get update
-            sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
+            if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
+            then
+                whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo apt-get upgrade -y）？" 10 60
+                sudo apt-get upgrade -y
+                if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
+                then
+                    whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
+                    exit 1
+                fi
+            fi
         else
             sudo apt-get update
-            sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
+            if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
+            then
+                whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo apt-get upgrade -y）？" 10 60
+                sudo apt-get upgrade -y
+                if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
+                then
+                    whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
+                    exit 1
+                fi
+            fi
         fi
-    
+
     fi
-    
+
     if type yum &> /dev/null
     then
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
-        else                     
-            sudo yum install -y glibc libstdc++ libcurl screen vim
+            if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
+            then
+                whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo yum update -y）？" 10 60
+                sudo yum update -y
+                if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
+                then
+                    whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
+                    exit 1
+                fi
+            fi
+        else
+            if ! sudo yum install -y glibc libstdc++ libcurl screen vim
+            then
+                whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo yum update -y）？" 10 60
+                sudo yum update -y && sudo yum install -y glibc libstdc++ libcurl screen vim
+                if ! sudo yum install -y glibc libstdc++ libcurl screen vim
+                then
+                    whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
+                    exit 1
+                fi
+            fi
         fi
-    
+
     fi
 }
 
@@ -136,32 +172,37 @@ function uninstall()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen
-	    sudo apt-get clean
+            whiptail --title "下列软件将被卸载清除！" --yesno "libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim" 10 60
+            sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 screen vim
+            sudo apt-get clean
             sudo apt-get autoclean
         else
-            sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen
-	    sudo apt-get clean
+            whiptail --title "下列软件将被卸载清除！" --yesno "libgcc1 libcurl4-gnutls-dev screen vim" 10 60
+            sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev screen vim
+            sudo apt-get clean
             sudo apt-get autoclean
         fi
-    
+
     fi
-    
+
     if type yum &> /dev/null
     then
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            sudo yum remove -y glibc.i686 libstdc++.i686 libcurl.i686 screen
+            whiptail --title "下列软件将被卸载清除！" --yesno "glibc.i686 libstdc++.i686 libcurl.i686 screen vim" 10 60
+            sudo yum remove -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
             sudo yum clean
         else
-            sudo yum remove -y glibc libstdc++ libcurl screen
+            whiptail --title "下列软件将被卸载清除！" --yesno "glibc libstdc++ libcurl screen vim" 10 60
+            sudo yum remove -y glibc libstdc++ libcurl screen vim
             sudo yum clean
         fi
-    
+
     fi
 
     cd $HOME
+    whiptail --title "清除游戏数据！" --yesno "" 5 60
     rm -rf ./Steam/ ./.klei/ ./steam_dst/ ./.steam/
     sync && sync && sync
 }
@@ -480,7 +521,7 @@ function loop()
             whiptail_progress_bar
             dst_set
         fi
-        
+
         if [[ "$option" =~ "start master" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
@@ -494,13 +535,13 @@ function loop()
             dst_caves_start
             whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         fi
-        
+
         if [[ "$option" =~ "stop master" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地上服务。" 10 60
             dst_master_stop
         fi
-        
+
         if [[ "$option" =~ "stop caves" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
@@ -555,16 +596,16 @@ function loop()
         if [[ "$option" =~ "clean archive" ]]
         then
             whiptail --title "" --yesno "待开发 ..." 10 60
-            
+
         fi
-        
+
         if [[ "$option" =~ "update dst" ]]
         then
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
             update_dst
         fi
-        
+
         if [[ "$option" =~ "update steamcmd" ]]
         then
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
@@ -602,8 +643,8 @@ function loop()
 function init_loop()
 {
     if whiptail --title "whether to install?" --yes-button "install" --no-button "exit"  --yesno "             install location: ~/steam_dst/\n\n          DST setting files location: ~/.klei/\n\n          steam rely files location: ~/Steam/\n\n       tested environment: Debian 8/9 CentOS 6/7" 14 60
-    then                                                                                            
-        get_root                                                                                    
+    then
+        get_root
         install_rely
         install_steamcmd
         install_dst
