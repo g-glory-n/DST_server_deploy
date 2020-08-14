@@ -556,18 +556,21 @@ function loop()
             run_info_list=
             for list in $(screen -ls | grep dst | awk '{print $1}')
             do
-                temp_list_0="ID:${list%.*}"
-                temp_list_1="${list}" #################
-                run_info_list="$run_info_list $list $temp_list off"
+                temp_list_0=${list%.*}
+                temp_list_1=${list#*.}
+                run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
             done
-            temp_0=$(whiptail --title "恢复存档" --checklist \
-            "" 20 68 14 \
+            temp_0=$(whiptail --title "选择需要查看的世界" --checklist \
+            "" 20 30 14 \
             $run_info_list 3>&1 1>&2 2>&3)
 
             temp_0=${temp_0##\"}
             temp_0=${temp_0%\"}
-            whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 z 即可。" 10 60
-            sudo screen -r $temp_0
+            if [ ! -z $temp_0 ]
+            then
+                whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
+                sudo screen -r $temp_0
+            fi
         fi
 
         if [[ "$option" =~ "stop all" ]]
