@@ -243,7 +243,7 @@ function dst_master_start()
     cd $dst_dir/bin/
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
-        screen -dmS dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+        screen -dmS ${cluster_name}_dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
     fi
 }
 
@@ -252,7 +252,7 @@ function dst_caves_start()
     cd $dst_dir/bin/
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
-        screen -dmS dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+        screen -dmS ${cluster_name}_dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
     fi
 }
 
@@ -561,7 +561,7 @@ function loop()
                 run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
             done
             temp_0=$(whiptail --title "选择需要查看的世界" --checklist \
-            "" 20 30 14 \
+            "" 20 44 14 \
             $run_info_list 3>&1 1>&2 2>&3)
 
             temp_0=${temp_0##\"}
