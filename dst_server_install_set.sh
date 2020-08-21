@@ -683,6 +683,7 @@ function loop()
                     Username {send $username\n; exp_continue}
                     Password {send $password\n; exp_continue}
                 }
+                exit 0
             "
         fi
 
