@@ -677,15 +677,19 @@ function loop()
             username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
             password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
             cd $script_root_dir && git add ./
-            git commit ./ -m "first commit" || whiptail --title "massage" --msgbox "nothing to commit, working tree clean." 7 60
-            expect -c "
-                spawn git push origin master
-                expect {
-                    Username {send $username\n; exp_continue}
-                    Password {send $password\n; exp_continue}
-                }
-                exit 0
-            "
+            if ! git commit ./ -m "first commit"
+            then
+                whiptail --title "massage" --msgbox "nothing to commit, working tree clean." 7 60
+            else
+                expect -c "
+                    spawn git push origin master
+                    expect {
+                        Username {send $username\n; exp_continue}
+                        Password {send $password\n; exp_continue}
+                    }
+                    exit 0
+                "
+            fi
         fi
 
         if [[ "$option" =~ "help" ]]
