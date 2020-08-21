@@ -105,11 +105,11 @@ function install_rely()
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
             sudo apt-get update
-            if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
+            if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim expect
             then
                 whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo apt-get upgrade -y）？" 10 60
                 sudo apt-get upgrade -y
-                if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim
+                if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim expect
                 then
                     whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
                     exit 1
@@ -117,11 +117,11 @@ function install_rely()
             fi
         else
             sudo apt-get update
-            if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
+            if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim expect
             then
                 whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo apt-get upgrade -y）？" 10 60
                 sudo apt-get upgrade -y
-                if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim
+                if ! sudo apt-get install -y libstdc++6 libgcc1 libcurl4-gnutls-dev libsdl2-dev screen vim expect
                 then
                     whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
                     exit 1
@@ -136,11 +136,11 @@ function install_rely()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
+            if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim expect
             then
                 whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo yum update -y）？" 10 60
                 sudo yum update -y
-                if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
+                if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim expect
                 then
                     whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
                     exit 1
@@ -148,11 +148,11 @@ function install_rely()
             fi
             cp /usr/lib/libcurl.so.4 $dst_dir/bin/lib32/libcurl-gnutls.so.4 # 解决方案（启动报错：找不到 libcurl-gnutls.so.4）
         else
-            if ! sudo yum install -y glibc libstdc++ libcurl screen vim
+            if ! sudo yum install -y glibc libstdc++ libcurl screen vim expect
             then
                 whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo yum update -y）？" 10 60
-                sudo yum update -y && sudo yum install -y glibc libstdc++ libcurl screen vim
-                if ! sudo yum install -y glibc libstdc++ libcurl screen vim
+                sudo yum update -y && sudo yum install -y glibc libstdc++ libcurl screen vim expect
+                if ! sudo yum install -y glibc libstdc++ libcurl screen vim expect
                 then
                     whiptail --title "install rely failed!" --yesno "安装依赖失败，请联系邮箱：g-glory-n@qq.com！" 10 60
                     exit 1
@@ -174,13 +174,13 @@ function uninstall()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            whiptail --title "下列软件将被卸载清除！" --yesno "libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim" 10 60
-            sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 screen vim
+            whiptail --title "下列软件将被卸载清除！" --yesno "libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim expect" 10 60
+            sudo apt-get remove -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 screen vim expect
             sudo apt-get clean
             sudo apt-get autoclean
         else
-            whiptail --title "下列软件将被卸载清除！" --yesno "libgcc1 libcurl4-gnutls-dev screen vim" 10 60
-            sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev screen vim
+            whiptail --title "下列软件将被卸载清除！" --yesno "libgcc1 libcurl4-gnutls-dev screen vim expect" 10 60
+            sudo apt-get remove -y libstdc++6 libgcc1 libcurl4-gnutls-dev screen vim expect
             sudo apt-get clean
             sudo apt-get autoclean
         fi
@@ -192,12 +192,12 @@ function uninstall()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
-            whiptail --title "下列软件将被卸载清除！" --yesno "glibc.i686 libstdc++.i686 libcurl.i686 screen vim" 10 60
-            sudo yum remove -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim
+            whiptail --title "下列软件将被卸载清除！" --yesno "glibc.i686 libstdc++.i686 libcurl.i686 screen vim expect" 10 60
+            sudo yum remove -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim expect
             sudo yum clean
         else
-            whiptail --title "下列软件将被卸载清除！" --yesno "glibc libstdc++ libcurl screen vim" 10 60
-            sudo yum remove -y glibc libstdc++ libcurl screen vim
+            whiptail --title "下列软件将被卸载清除！" --yesno "glibc libstdc++ libcurl screen vim expect" 10 60
+            sudo yum remove -y glibc libstdc++ libcurl screen vim expect
             sudo yum clean
         fi
 
@@ -674,13 +674,17 @@ function loop()
 
         if [[ "$option" =~ "git push" ]]
         then
-            user_name=$(whiptail --title "please input your github user name" --inputbox "" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
+            username=$(whiptail --title "please input your github username" --inputbox "" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
             password=$(whiptail --title "please input your github password" --passwordbox "" 10 60 "" 3>&1 1>&2 2>&3)
             cd $script_root_dir && git add ./ && git commit ./ -m "first commit"
-            git push origin master << EOF
-$user_name
-$password
-EOF
+            expect -c "
+                spawn git push origin master
+                expect {
+                    \"Username\" {send $username; exp_continue}
+                    \"Password\" {send $password}
+                }
+                interact
+            "
         fi
 
         if [[ "$option" =~ "help" ]]
