@@ -311,7 +311,10 @@ function restore_archive()
 
 function clean_archive()
 {
-    echo ""
+    if [ ! -z $1 ]
+    then
+        rm -rf $HOME/.klei/backup/$1
+    fi
 }
 
 
@@ -360,7 +363,7 @@ function dst_set()
 {
     while true
     do
-        dst_set_option=$(whiptail --title "command select" --checklist "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！\n\n当前存档指向：$cluster_name" 25 40 12 \
+        dst_set_option=$(whiptail --title "command select" --ok-button "确定" --cancel-button "退出" --checklist "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！\n\n当前存档指向：$cluster_name" 25 40 12 \
         "init conf" "初始化配置" off \
         "cre_new_wor" "创建新世界" off \
         "set token" "配置 token" off \
@@ -483,7 +486,7 @@ function loop()
 
     while true
     do
-        option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
+        option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
         "" 22 43 16 \
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
@@ -498,8 +501,8 @@ function loop()
         "clean archive" "清除存档备份" off \
         "update dst" "更新饥荒服务" off \
         "update steamcmd" "更新服务平台" off \
-        "help" "脚本帮助文档" off \
         "uninstall clean" "卸载清除依赖" off \
+        "help" "脚本帮助文档" off \
         "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
 
 
@@ -620,8 +623,28 @@ function loop()
 
         if [[ "$option" =~ "clean archive" ]]
         then
-            whiptail --title "" --yesno "待开发 ..." 10 60
+            # echo $option
+            archive_list=
+            for list in $(ls $HOME/.klei/backup/)
+            do
+                temp_list=${list%.*}
+                temp_list=${temp_list%---*}
+                temp_list=${temp_list%---*}
+                archive_list="$archive_list $list $temp_list off"
+            done
+            # echo -e "$archive_list"
+            archive_name_to_clean=$(whiptail --title "恢复存档" --checklist \
+            "" 20 68 14 \
+            $archive_list 3>&1 1>&2 2>&3)
+            # echo "$archive_name_to_clean"
+            archive_name_to_clean=$(echo "${archive_name_to_clean##\"}")
+            # echo "$archive_name_to_clean"
+            archive_name_to_clean=$(echo "${archive_name_to_clean%\"}")
+            # echo "$archive_name_to_clean"
 
+            # rm -rf $HOME/.klei/backup/archive_name_to_clean
+            whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
+            clean_archive $archive_name_to_clean
         fi
 
         if [[ "$option" =~ "update dst" ]]
@@ -638,17 +661,17 @@ function loop()
             update_steamcmd
         fi
 
-        if [[ "$option" =~ "help" ]]
-        then
-            whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启地上世界，开启地下世界（可选），退出脚本。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新模组），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭所有饥荒服务（地上和地下）。\n\n5：脚本可以创建多个存档，针对不同存档可分别进行配置。\n\n6：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n7：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
-            # continue # 可能导致 exit 无效。
-        fi
-
         if [[ "$option" =~ "uninstall clean" ]]
         then
             whiptail --title "uninstall ?" --yesno "" 5 60
             uninstall
 	    exit 0
+        fi
+
+        if [[ "$option" =~ "help" ]]
+        then
+            whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启地上世界，开启地下世界（可选），退出脚本。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新模组），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭所有饥荒服务（地上和地下）。\n\n5：脚本可以创建多个存档，针对不同存档可分别进行配置。\n\n6：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n7：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
+            # continue # 可能导致 exit 无效。
         fi
 
         if [[ "$option" =~ "exit" ]]
