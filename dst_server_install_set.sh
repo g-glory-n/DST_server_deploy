@@ -703,7 +703,7 @@ function loop()
             exit 0
         fi
 
-        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]] && [[ "$option" != "\"show run_info\"" ]]
+        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]] && [[ "$option" != "\"show run_info\"" ]] && [[ "$option" != "\"git push\"" ]]
         then
             whiptail_progress_bar
         fi
