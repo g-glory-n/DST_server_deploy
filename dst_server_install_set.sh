@@ -487,7 +487,7 @@ function loop()
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
-        "" 22 43 16 \
+        "" 23 43 17 \
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
@@ -502,6 +502,7 @@ function loop()
         "update dst" "更新饥荒服务" off \
         "update steamcmd" "更新服务平台" off \
         "uninstall clean" "卸载清除依赖" off \
+        "git push" "更新脚本仓库" off \
         "help" "脚本帮助文档" off \
         "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
 
@@ -524,7 +525,10 @@ function loop()
             if [ ! -z $temp_0 ]
             then
                 whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
-                sudo screen -r $temp_0
+                if ! sudo screen -r $temp_0
+                then
+                    whiptail --title "massage" --msgbox "                    目标进程已退出！" 10 60
+                fi
             fi
         fi
 
@@ -666,6 +670,17 @@ function loop()
             whiptail --title "uninstall ?" --yesno "" 5 60
             uninstall
 	    exit 0
+        fi
+
+        if [[ "$option" =~ "git push" ]]
+        then
+            user_name=$(whiptail --title "please input your github user name" --inputbox "" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
+            password=$(whiptail --title "please input your github password" --passwordbox "" 10 60 "" 3>&1 1>&2 2>&3)
+            cd $script_root_dir && git add ./ && git commit ./ -m "first commit"
+            git push origin master << EOF
+$user_name
+$password
+EOF
         fi
 
         if [[ "$option" =~ "help" ]]
