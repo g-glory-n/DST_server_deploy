@@ -34,7 +34,7 @@ function welcome()
     fi
 
     # 欢迎界面。
-    whiptail --title "welcome" --msgbox "         description: deploy DST linux server\n\n               website: www.g-glory-n.top\n                   author: g-glory-n\n                   date: 2020.07.10" 12 60
+    whiptail --title "welcome!" --msgbox "         description: deploy DST linux server\n\n               website: www.g-glory-n.top\n                E-mail: g-glory-n@qq.com\n                 start date: 2020.07.10\n                   author: g-glory-n\n" 12 60
 }
 
 
@@ -674,8 +674,8 @@ function loop()
 
         if [[ "$option" =~ "git push" ]]
         then
-            username=$(whiptail --title "please input your github username" --inputbox "" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
-            password=$(whiptail --title "please input your github password" --passwordbox "" 10 60 "" 3>&1 1>&2 2>&3)
+            username=$(whiptail --title "please input your github username" --inputbox "\n" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
+            password=$(whiptail --title "please input your github password" --passwordbox "\n" 10 60 "" 3>&1 1>&2 2>&3)
             cd $script_root_dir && git add ./ && git commit ./ -m "first commit"
             expect -c "
                 spawn git push origin master
@@ -684,7 +684,6 @@ function loop()
                     Password {send $password\n}
                 }
                 interact
-                expect eof
             "
         fi
 
@@ -710,6 +709,7 @@ function loop()
 
 function init_loop()
 {
+    # welcome
     if whiptail --title "whether to install?" --yes-button "install" --no-button "exit"  --yesno "             install location: ~/steam_dst/\n\n          DST setting files location: ~/.klei/\n\n          steam rely files location: ~/Steam/\n\n       tested environment: Debian 8/9 CentOS 6/7" 14 60
     then
         get_root
