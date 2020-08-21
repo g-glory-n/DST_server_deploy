@@ -262,7 +262,7 @@ function dst_master_stop()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
     fi
 }
 
@@ -270,7 +270,7 @@ function dst_caves_stop()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
     fi
 }
 
@@ -278,7 +278,7 @@ function dst_stop_all()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
     fi
 }
 
@@ -485,13 +485,13 @@ function loop()
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --checklist \
         "" 22 43 16 \
+        "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
         "start master" "开启地上世界" off \
         "start caves" "开启地下世界" off \
         "stop master" "关闭地上世界" off \
         "stop caves" "关闭地下世界" off \
-        "show run_info" "显示运行信息" off \
         "stop all" "关闭所有世界" off \
         "backup" "创建存档备份" off \
         "restore" "恢复存档备份" off \
@@ -502,6 +502,28 @@ function loop()
         "uninstall clean" "卸载清除依赖" off \
         "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
 
+
+        if [[ "$option" =~ "show run_info" ]]
+        then
+            run_info_list=
+            for list in $(screen -ls | grep dst | awk '{print $1}')
+            do
+                temp_list_0=${list%.*}
+                temp_list_1=${list#*.}
+                run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
+            done
+            temp_0=$(whiptail --title "选择需要查看的世界" --checklist \
+            "" 20 44 14 \
+            $run_info_list 3>&1 1>&2 2>&3)
+
+            temp_0=${temp_0##\"}
+            temp_0=${temp_0%\"}
+            if [ ! -z $temp_0 ]
+            then
+                whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
+                sudo screen -r $temp_0
+            fi
+        fi
 
         if [[ "$option" =~ "cluster name" ]]
         then
@@ -549,28 +571,6 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
             dst_caves_stop
-        fi
-
-        if [[ "$option" =~ "show run_info" ]]
-        then
-            run_info_list=
-            for list in $(screen -ls | grep dst | awk '{print $1}')
-            do
-                temp_list_0=${list%.*}
-                temp_list_1=${list#*.}
-                run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
-            done
-            temp_0=$(whiptail --title "选择需要查看的世界" --checklist \
-            "" 20 44 14 \
-            $run_info_list 3>&1 1>&2 2>&3)
-
-            temp_0=${temp_0##\"}
-            temp_0=${temp_0%\"}
-            if [ ! -z $temp_0 ]
-            then
-                whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
-                sudo screen -r $temp_0
-            fi
         fi
 
         if [[ "$option" =~ "stop all" ]]
