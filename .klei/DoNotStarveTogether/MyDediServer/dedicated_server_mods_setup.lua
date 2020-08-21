@@ -52,6 +52,7 @@ ServerModSetup("898982040")           -- evening flower
 ServerModSetup("1349799880")          -- basements
 ServerModSetup("1951468597")          -- Sweet House(甜蜜小屋)
 ServerModSetup("860400649")           -- A water mod(水 mod)
+ServerModSetup("908071894")           -- thirst release(水 mod)
 ServerModSetup("726432903")           -- Multi-Worlds DST
 ServerModSetup("1938752683")          -- reforged(炼钢)(与其他 mod 不兼容)
 ServerModSetup("1811475804")          -- Whispering Wisespy
