@@ -680,8 +680,8 @@ function loop()
             expect -c "
                 spawn git push origin master
                 expect {
-                    \"Username\" {send $username; exp_continue}
-                    \"Password\" {send $password}
+                    Username {send $username\n; exp_continue}
+                    Password {send $password\n}
                 }
                 interact
             "
