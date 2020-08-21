@@ -674,9 +674,10 @@ function loop()
 
         if [[ "$option" =~ "git push" ]]
         then
-            username=$(whiptail --title "please input your github username" --inputbox "\n" 10 60 "g-glory-n" 3>&1 1>&2 2>&3)
-            password=$(whiptail --title "please input your github password" --passwordbox "\n" 10 60 "" 3>&1 1>&2 2>&3)
-            cd $script_root_dir && git add ./ && git commit ./ -m "first commit"
+            username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
+            password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
+            cd $script_root_dir && git add ./
+            git commit ./ -m "first commit" || whiptail --title "massage" --msgbox "nothing to commit, working tree clean." 7 60
             expect -c "
                 spawn git push origin master
                 expect {
