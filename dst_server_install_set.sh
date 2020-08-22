@@ -598,9 +598,11 @@ function loop()
 
         if [[ "$option" =~ "backup" ]]
         then
-            whiptail --title "存档指向：$cluster_name" --yesno "                      备份指向存档。" 10 60
-            backup_archive
-            whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
+            if whiptail --title "存档指向：$cluster_name" --yesno "                      备份指向存档。" 10 60
+            then
+                backup_archive
+                whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
+            fi
         fi
 
         if [[ "$option" =~ "restore" ]]
@@ -647,7 +649,7 @@ function loop()
                 archive_list="$archive_list $list $temp_list off"
             done
             # echo -e "$archive_list"
-            archive_name_to_clean=$(whiptail --title "恢复存档" --checklist \
+            archive_name_to_clean=$(whiptail --title "清除存档" --checklist \
             "" 20 68 14 \
             $archive_list 3>&1 1>&2 2>&3)
             # echo "$archive_name_to_clean"
@@ -656,9 +658,12 @@ function loop()
             archive_name_to_clean=$(echo "${archive_name_to_clean%\"}")
             # echo "$archive_name_to_clean"
 
-            # rm -rf $HOME/.klei/backup/archive_name_to_clean
-            whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
-            clean_archive $archive_name_to_clean
+            if [ ! -z $archive_name_to_clean ]
+            then
+                # rm -rf $HOME/.klei/backup/archive_name_to_clean
+                whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
+                clean_archive $archive_name_to_clean
+            fi
         fi
 
         if [[ "$option" =~ "update dst" ]]
