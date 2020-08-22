@@ -269,8 +269,8 @@ function dst_master_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
-    else
-        whiptail --title "message" --msgbox "进程不存在！" 10 60
+    # else
+        # whiptail --title "message" --msgbox "待结束地上世界进程不存在！" 10 60
     fi
 }
 
@@ -279,8 +279,8 @@ function dst_caves_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
-    else
-        whiptail --title "message" --msgbox "进程不存在！" 10 60
+    # else
+        # whiptail --title "message" --msgbox "待结束地下世界进程不存在！" 10 60
     fi
 }
 
@@ -289,8 +289,8 @@ function dst_stop_all()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
-    else
-        whiptail --title "message" --msgbox "进程不存在！" 10 60
+    # else
+        # whiptail --title "message" --msgbox "待结束饥荒进程不存在！" 10 60
     fi
 }
 
