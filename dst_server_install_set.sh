@@ -243,7 +243,10 @@ function dst_master_start()
     cd $dst_dir/bin/
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
+        whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         screen -dmS ${cluster_name}_dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+    else
+        whiptail --title "message" --msgbox "存档指向的地上世界已经开启，请勿重复开启！" 10 60
     fi
 }
 
@@ -252,7 +255,10 @@ function dst_caves_start()
     cd $dst_dir/bin/
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
+        whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         screen -dmS ${cluster_name}_dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+    else
+        whiptail --title "message" --msgbox "存档指向的地下世界已经开启，请勿重复开启！" 10 60
     fi
 }
 
@@ -263,6 +269,8 @@ function dst_master_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+    else
+        whiptail --title "message" --msgbox "进程不存在！" 10 60
     fi
 }
 
@@ -271,6 +279,8 @@ function dst_caves_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+    else
+        whiptail --title "message" --msgbox "进程不存在！" 10 60
     fi
 }
 
@@ -279,6 +289,8 @@ function dst_stop_all()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
+    else
+        whiptail --title "message" --msgbox "进程不存在！" 10 60
     fi
 }
 
@@ -524,10 +536,10 @@ function loop()
             temp_0=${temp_0%\"}
             if [ ! -z $temp_0 ]
             then
-                whiptail --title "massage" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
+                whiptail --title "message" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
                 if ! sudo screen -r $temp_0
                 then
-                    whiptail --title "massage" --msgbox "                    目标进程已退出！" 10 60
+                    whiptail --title "message" --msgbox "                    目标进程已退出！" 10 60
                 fi
             fi
         fi
@@ -558,14 +570,12 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
             dst_master_start
-            whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         fi
 
         if [[ "$option" =~ "start caves" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地下服务。" 10 60
             dst_caves_start
-            whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         fi
 
         if [[ "$option" =~ "stop master" ]]
@@ -677,7 +687,7 @@ function loop()
             cd $script_root_dir && git add ./
             if ! git commit ./ -m "first commit"
             then
-                whiptail --title "massage" --msgbox "nothing to commit, working tree clean." 7 60
+                whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
             else
                 username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
                 password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
