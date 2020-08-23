@@ -503,6 +503,7 @@ function loop()
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
+        "update dst" "更新饥荒服务" off \
         "start master" "开启地上世界" off \
         "start caves" "开启地下世界" off \
         "stop master" "关闭地上世界" off \
@@ -511,7 +512,6 @@ function loop()
         "backup" "创建存档备份" off \
         "restore" "恢复存档备份" off \
         "clean archive" "清除存档备份" off \
-        "update dst" "更新饥荒服务" off \
         "update steamcmd" "更新服务平台" off \
         "uninstall clean" "卸载清除依赖" off \
         "git push" "更新脚本仓库" off \
@@ -564,6 +564,13 @@ function loop()
             dst_stop_all
             whiptail_progress_bar
             dst_set
+        fi
+
+        if [[ "$option" =~ "update dst" ]]
+        then
+            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
+            dst_stop_all
+            update_dst
         fi
 
         if [[ "$option" =~ "start master" ]]
@@ -664,13 +671,6 @@ function loop()
                 whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
                 clean_archive $archive_name_to_clean
             fi
-        fi
-
-        if [[ "$option" =~ "update dst" ]]
-        then
-            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
-            dst_stop_all
-            update_dst
         fi
 
         if [[ "$option" =~ "update steamcmd" ]]
