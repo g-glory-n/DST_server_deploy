@@ -690,7 +690,7 @@ function loop()
         if [[ "$option" =~ "git push" ]]
         then
             cd $script_root_dir && git add ./
-            if ! git commit ./ -m "first commit"
+            if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
             then
                 whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
             else
