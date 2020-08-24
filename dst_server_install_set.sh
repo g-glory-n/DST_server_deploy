@@ -361,7 +361,7 @@ function dst_config_init()
 function whiptail_progress_bar()
 {
     {
-    for ((i = 0 ; i <= 100 ; i+=10))
+    for ((i = 0; i <= 100; i+=10))
     do
         sleep 0.1
         echo $i
@@ -375,9 +375,10 @@ function dst_set()
 {
     while true
     do
-        dst_set_option=$(whiptail --title "command select" --ok-button "确定" --cancel-button "退出" --checklist "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！\n\n当前存档指向：$cluster_name" 25 40 12 \
+        dst_set_option=$(whiptail --title "command select" --ok-button "确定" --cancel-button "退出" --checklist "请注意：编辑器使用的是 vim，按 i 进入编辑修改模式，修改完按 ESC，再按 :wq 保存退出！\n\n当前存档指向：$cluster_name" 25 40 13 \
         "init conf" "初始化配置" off \
         "cre_new_wor" "创建新世界" off \
+        "set hosts" "基本信息配置" off \
         "set token" "配置 token" off \
         "set master" "配置地上世界" off \
         "set caves" "配置地下世界" off \
@@ -404,11 +405,23 @@ function dst_set()
         then
             whiptail --title "message" --msgbox "                       创建新档。" 10 60
             new_cluster_name=$(whiptail --title "新档名（小于等于 6 个汉字字符或 12 个英文字符）" --inputbox "请务必保证，输入存档名不包含于已有存档名集合！\n\n列出所有已有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n部分已有存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 3>&1 1>&2 2>&3)
-            mkdir -p $HOME/.klei/DoNotStarveTogether/$new_cluster_name
-            cd $script_root_dir
-            cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$new_cluster_name/
-            rm -rf $HOME/.klei/DoNotStarveTogether/$new_cluster_name/dedicated_server_mods_setup.lua
+            if [ ! -z $new_cluster_name ]
+            then
+                mkdir -p $HOME/.klei/DoNotStarveTogether/$new_cluster_name
+                cd $script_root_dir
+                cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$new_cluster_name/
+                rm -rf $HOME/.klei/DoNotStarveTogether/$new_cluster_name/dedicated_server_mods_setup.lua
+            else
+                whiptail --title "message" --msgbox "存档名不能为空！" 10 60
+            fi
         fi
+
+        if [[ "$dst_set_option" =~ "set hosts" ]]
+        then
+            whiptail --title "请仔细阅读配置文件！" --yesno "1：初次部署服务，默认地上地下在同一服务器,配置 cluster_name，cluster_description，cluster_password 这些选项即可。\n\n2：如需地上地下服务器分离，配置 bind_ip = 0.0.0.0 && master_ip=master_server_ip_address，即可。\n\n" 15 60
+            vim $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster.ini
+        fi
+
 
         if [[ "$dst_set_option" =~ "set token" ]]
         then
@@ -709,7 +722,7 @@ function loop()
 
         if [[ "$option" =~ "help" ]]
         then
-            whiptail --title "help document" --msgbox "1：快速开服：配置（token，世界资源，等其他配置项），开启地上世界，开启地下世界（可选），退出脚本。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新模组），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭所有饥荒服务（地上和地下）。\n\n5：脚本可以创建多个存档，针对不同存档可分别进行配置。\n\n6：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n7：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
+            whiptail --title "help document" --msgbox "1：快速开服：配置基本信息，token，世界资源，等其他配置项，开启地上世界，开启地下世界（可选），退出脚本。\n\n2：一段时间（若干天）后客户端可能搜索不到世界，需要更新 DST（会同时更新模组），一般不需要更新 steamcmd。\n\n3：请在生成 DST 世界前，配置世界资源，否则无效。\n\n4：更新或配置选项将会关闭所有饥荒服务（地上和地下）。\n\n5：脚本可以创建多个存档，针对不同存档可分别进行配置。\n\n6：配置错误不用重装软件，可以选择配置初始化选项，重新配置。\n\n7：BUG 提交，疑难解答，请联系邮箱: g-glory-n@qq.com。" 27 60
             # continue # 可能导致 exit 无效。
         fi
 
