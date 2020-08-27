@@ -302,7 +302,9 @@ function backup_archive()
     then
         mkdir -p $HOME/.klei/backup/
     fi
-    cd $HOME/.klei/DoNotStarveTogether/$cluster_name/ && tar -cvf $HOME/.klei/backup/${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar ./
+    cd $HOME/.klei/DoNotStarveTogether/$cluster_name/
+    cp -r $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua ./
+    tar -cvf $HOME/.klei/backup/${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar ./
 }
 
 
@@ -316,7 +318,12 @@ function restore_archive()
         rm -rf $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
         mkdir -p $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
     fi
-    cd $HOME/.klei/backup/ && tar -xvf ./$select_archive_name -C $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+    cd $HOME/.klei/backup/
+    tar -xvf ./$select_archive_name -C $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+    cd $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
+    rm -rf $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
+    cp -r ./dedicated_server_mods_setup.lua $HOME/steam_dst/dst/mods/
+    rm -rf ./dedicated_server_mods_setup.lua
 }
 
 
@@ -342,8 +349,11 @@ function update_steamcmd()
 
 function update_dst()
 {
+    cp -r $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua.backup
     cd $steam_dir
     ./steamcmd.sh +force_install_dir "$dst_dir" +login anonymous +app_update 343050 validate +quit
+    rm -rf $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
+    mv $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua.backup $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
 }
 
 
@@ -541,7 +551,7 @@ function loop()
                 temp_list_1=${list#*.}
                 run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
             done
-            temp_0=$(whiptail --title "选择需要查看的世界" --checklist \
+            temp_0=$(whiptail --title "选择需要查看的世界" --radiolist \
             "" 20 44 14 \
             $run_info_list 3>&1 1>&2 2>&3)
 
@@ -622,38 +632,48 @@ function loop()
             then
                 backup_archive
                 whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
+            else
+                whiptail --title "中断备份" --msgbox "" 5 60
             fi
         fi
 
         if [[ "$option" =~ "restore" ]]
         then
-            # echo $option
-            archive_list=
-            for list in $(ls $HOME/.klei/backup/)
-            do
-                temp_list=${list%.*}
-                temp_list=${temp_list%---*}
-                temp_list=${temp_list%---*}
-                archive_list="$archive_list $list $temp_list off"
-            done
-            # echo -e "$archive_list"
-            select_archive_name=$(whiptail --title "恢复存档" --checklist \
-            "" 20 68 14 \
-            $archive_list 3>&1 1>&2 2>&3)
-            # echo "$select_archive_name"
-            select_archive_name=$(echo "${select_archive_name##\"}")
-            # echo "$select_archive_name"
-            select_archive_name=$(echo "${select_archive_name%\"}")
-            # echo "$select_archive_name"
-
-            if [ ! -z $select_archive_name ]
+            if whiptail --title "存档指向：$cluster_name" --yesno "恢复存档需要先备份当前指向的存档，是否继续？" 10 60
             then
-                reset_cluster_name=${select_archive_name%.*}
-                reset_cluster_name=${reset_cluster_name%---*}
-                reset_cluster_name=${reset_cluster_name%---*}
-                # echo "$reset_cluster_name"
-                reset_cluster_name=$(whiptail --title "是否重设存档名？" --inputbox "" 10 60 $reset_cluster_name 3>&1 1>&2 2>&3)
-                restore_archive
+                backup_archive
+                whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
+
+                # echo $option
+                archive_list=
+                for list in $(ls $HOME/.klei/backup/)
+                do
+                    temp_list=${list%.*}
+                    temp_list=${temp_list%---*}
+                    temp_list=${temp_list%---*}
+                    archive_list="$archive_list $list $temp_list off"
+                done
+                # echo -e "$archive_list"
+                select_archive_name=$(whiptail --title "恢复存档" --radiolist \
+                "" 20 68 14 \
+                $archive_list 3>&1 1>&2 2>&3)
+                # echo "$select_archive_name"
+                select_archive_name=$(echo "${select_archive_name##\"}")
+                # echo "$select_archive_name"
+                select_archive_name=$(echo "${select_archive_name%\"}")
+                # echo "$select_archive_name"
+
+                if [ ! -z $select_archive_name ]
+                then
+                    reset_cluster_name=${select_archive_name%.*}
+                    reset_cluster_name=${reset_cluster_name%---*}
+                    reset_cluster_name=${reset_cluster_name%---*}
+                    # echo "$reset_cluster_name"
+                    reset_cluster_name=$(whiptail --title "是否重设存档名？" --inputbox "" 10 60 $reset_cluster_name 3>&1 1>&2 2>&3)
+                    restore_archive
+                fi
+            else
+                whiptail --title "中断恢复" --msgbox "" 5 60
             fi
         fi
 
@@ -669,7 +689,7 @@ function loop()
                 archive_list="$archive_list $list $temp_list off"
             done
             # echo -e "$archive_list"
-            archive_name_to_clean=$(whiptail --title "清除存档" --checklist \
+            archive_name_to_clean=$(whiptail --title "清除存档" --radiolist \
             "" 20 68 14 \
             $archive_list 3>&1 1>&2 2>&3)
             # echo "$archive_name_to_clean"
