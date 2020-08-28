@@ -268,7 +268,7 @@ function dst_master_stop()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
     # else
         # whiptail --title "message" --msgbox "待结束地上世界进程不存在！" 10 60
     fi
@@ -278,7 +278,7 @@ function dst_caves_stop()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
     # else
         # whiptail --title "message" --msgbox "待结束地下世界进程不存在！" 10 60
     fi
@@ -288,7 +288,7 @@ function dst_stop_all()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
     then
-        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 5 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
+        sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
     # else
         # whiptail --title "message" --msgbox "待结束饥荒进程不存在！" 10 60
     fi
@@ -318,6 +318,13 @@ function restore_archive()
         rm -rf $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
         mkdir -p $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
     fi
+
+    if [[ $reset_cluster_name == $cluster_name ]]
+    then
+        # 停止正在运行的指向 $reset_cluster_name 的服务。
+        echo ""
+    fi
+
     cd $HOME/.klei/backup/
     tar -xvf ./$select_archive_name -C $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
     cd $HOME/.klei/DoNotStarveTogether/$reset_cluster_name/
@@ -551,20 +558,29 @@ function loop()
                 temp_list_1=${list#*.}
                 run_info_list="$run_info_list $temp_list_1 $temp_list_0 off"
             done
-            temp_0=$(whiptail --title "选择需要查看的世界" --radiolist \
-            "" 20 44 14 \
-            $run_info_list 3>&1 1>&2 2>&3)
-
-            temp_0=${temp_0##\"}
-            temp_0=${temp_0%\"}
-            if [ ! -z $temp_0 ]
-            then
-                whiptail --title "message" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
-                if ! sudo screen -r $temp_0
+            while true
+            do
+                if [ -z $run_info_list ]
                 then
-                    whiptail --title "message" --msgbox "                    目标进程已退出！" 10 60
+                    whiptail --title "没有正在运行的服务" --yesno "" 5 60
+                    break
                 fi
-            fi
+                temp_0=$(whiptail --title "选择需要查看的世界" --radiolist \
+                "" 20 44 14 \
+                $run_info_list 3>&1 1>&2 2>&3)
+
+                temp_0=${temp_0##\"}
+                temp_0=${temp_0%\"}
+                if [ ! -z $temp_0 ]
+                then
+                    whiptail --title "message" --yesno "脱离运行日志界面，请先用 ctrl+a 然后按 d 即可。" 10 60
+                    if ! sudo screen -r $temp_0
+                    then
+                        whiptail --title "message" --msgbox "                    目标进程已退出！" 10 60
+                    fi
+                fi
+                break
+            done
         fi
 
         if [[ "$option" =~ "cluster name" ]]
@@ -579,6 +595,7 @@ function loop()
                     whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
                 fi
             done
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "dst config" ]]
@@ -594,36 +611,42 @@ function loop()
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
             update_dst
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "start master" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
             dst_master_start
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "start caves" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地下服务。" 10 60
             dst_caves_start
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "stop master" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地上服务。" 10 60
             dst_master_stop
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "stop caves" ]]
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
             dst_caves_stop
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "stop all" ]]
         then
             whiptail --title "stop all server" --yesno "             你将关闭本机所有地上和地下服务。" 10 60
             dst_stop_all
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "backup" ]]
@@ -631,6 +654,7 @@ function loop()
             if whiptail --title "存档指向：$cluster_name" --yesno "                      备份指向存档。" 10 60
             then
                 backup_archive
+                whiptail_progress_bar
                 whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
             else
                 whiptail --title "中断备份" --msgbox "" 5 60
@@ -642,6 +666,7 @@ function loop()
             if whiptail --title "存档指向：$cluster_name" --yesno "恢复存档需要先备份当前指向的存档，是否继续？" 10 60
             then
                 backup_archive
+                whiptail_progress_bar
                 whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
 
                 # echo $option
@@ -671,6 +696,7 @@ function loop()
                     # echo "$reset_cluster_name"
                     reset_cluster_name=$(whiptail --title "是否重设存档名？" --inputbox "" 10 60 $reset_cluster_name 3>&1 1>&2 2>&3)
                     restore_archive
+                    whiptail_progress_bar
                 fi
             else
                 whiptail --title "中断恢复" --msgbox "" 5 60
@@ -703,6 +729,7 @@ function loop()
                 # rm -rf $HOME/.klei/backup/archive_name_to_clean
                 whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
                 clean_archive $archive_name_to_clean
+                whiptail_progress_bar
             fi
         fi
 
@@ -710,14 +737,17 @@ function loop()
         then
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
+            whiptail_progress_bar
             update_steamcmd
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "uninstall clean" ]]
         then
             whiptail --title "uninstall ?" --yesno "" 5 60
             uninstall
-	    exit 0
+            whiptail_progress_bar
+	        exit 0
         fi
 
         if [[ "$option" =~ "git push" ]]
@@ -738,6 +768,7 @@ function loop()
                     exit 0
                 "
             fi
+            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "help" ]]
@@ -751,10 +782,10 @@ function loop()
             exit 0
         fi
 
-        if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]] && [[ "$option" != "\"show run_info\"" ]]
-        then
-            whiptail_progress_bar
-        fi
+        # if [[ "$option" != "" ]] && [[ "$option" != "\"help\"" ]] && [[ "$option" != "\"cluster name\"" ]] && [[ "$option" != "\"show run_info\"" ]]
+        # then
+        #     whiptail_progress_bar
+        # fi
     done
 }
 
