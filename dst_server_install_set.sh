@@ -302,6 +302,9 @@ function backup_archive()
     then
         mkdir -p $HOME/.klei/backup/
     fi
+
+    # 备份存档正在运行，尽量先关闭在备份。
+
     cd $HOME/.klei/DoNotStarveTogether/$cluster_name/
     cp -r $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua ./
     tar -cvf $HOME/.klei/backup/${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar ./
@@ -590,12 +593,12 @@ function loop()
                 cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
                 if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
                 then
+                    whiptail_progress_bar
                     break
                 else
                     whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
                 fi
             done
-            whiptail_progress_bar
         fi
 
         if [[ "$option" =~ "dst config" ]]
