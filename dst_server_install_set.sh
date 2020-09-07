@@ -560,6 +560,7 @@ function loop()
 
     while true
     do
+        # wait
         option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
         "\n   master -> $master_status    caves -> $caves_status" 25 43 17 \
         "show run_info" "显示运行信息" off \
