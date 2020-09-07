@@ -577,7 +577,7 @@ function loop()
         "clean archive" "清除存档备份" off \
         "update steamcmd" "更新服务平台" off \
         "uninstall clean" "卸载清除依赖" off \
-        "git push" "更新脚本仓库" off \
+        "git push/pull" "更新脚本仓库" off \
         "help" "脚本帮助文档" off \
         "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
 
@@ -793,23 +793,33 @@ function loop()
 	        exit 0
         fi
 
-        if [[ "$option" =~ "git push" ]]
+        if [[ "$option" =~ "git push/pull" ]]
         then
-            cd $script_root_dir && git add ./
-            if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
+            git_option=$(whiptail --title "git push or pull" --radiolist \
+            "" 8 42 2 \
+            "push" "git push origin master" off \
+            "pull" "git pull origin master" off 3>&1 1>&2 2>&3)
+
+            if [[ "$git_option" == "push" ]]
             then
-                whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
+                cd $script_root_dir && git add ./
+                if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
+                then
+                    whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
+                else
+                    username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
+                    password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
+                    expect -c "
+                        spawn git push origin master
+                        expect {
+                            Username {send $username\n; exp_continue}
+                            Password {send $password\n; exp_continue}
+                        }
+                        exit 0
+                    "
+                fi
             else
-                username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
-                password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
-                expect -c "
-                    spawn git push origin master
-                    expect {
-                        Username {send $username\n; exp_continue}
-                        Password {send $password\n; exp_continue}
-                    }
-                    exit 0
-                "
+                git pull origin master
             fi
             whiptail_progress_bar
         fi
