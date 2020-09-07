@@ -12,6 +12,9 @@ cluster_name="MyDediServer"
 reset_cluster_name=""
 select_archive_name=""
 
+master_status="stop"
+caves_status="stop"
+
 
 
 function welcome()
@@ -234,6 +237,29 @@ function install_dst()
     mkdir -p $dst_dir
     cd $steam_dir
     ./steamcmd.sh +force_install_dir "$dst_dir" +login anonymous +app_update 343050 validate +quit
+}
+
+
+
+function get_master_and_caves_status()
+{
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
+    then
+        # master_status="wait"
+        master_status="stop"
+    else
+        # master_status="wait"
+        master_status="start"
+    fi
+
+    if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
+    then
+        # caves_status="wait"
+        caves_status="stop"
+    else
+        # caves_status="wait"
+        caves_status="start"
+    fi
 }
 
 
@@ -522,6 +548,7 @@ function loop()
             cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
             if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
             then
+                get_master_and_caves_status
                 break
             else
                 whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
@@ -529,10 +556,12 @@ function loop()
         done
     fi
 
+    get_master_and_caves_status
+
     while true
     do
         option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
-        "" 23 43 17 \
+        "\n   master -> $master_status    caves -> $caves_status" 25 43 17 \
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
@@ -593,6 +622,7 @@ function loop()
                 cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
                 if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
                 then
+                    get_master_and_caves_status
                     whiptail_progress_bar
                     break
                 else
@@ -605,6 +635,7 @@ function loop()
         then
             whiptail --title "message" --yesno "       配置过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
+            get_master_and_caves_status
             whiptail_progress_bar
             dst_set
         fi
@@ -614,6 +645,7 @@ function loop()
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
             update_dst
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -621,6 +653,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地上服务。" 10 60
             dst_master_start
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -628,6 +661,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 开启存档指向的地下服务。" 10 60
             dst_caves_start
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -635,6 +669,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地上服务。" 10 60
             dst_master_stop
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -642,6 +677,7 @@ function loop()
         then
             whiptail --title "存档指向：$cluster_name" --yesno "                 关闭存档指向的地下服务。" 10 60
             dst_caves_stop
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -649,6 +685,7 @@ function loop()
         then
             whiptail --title "stop all server" --yesno "             你将关闭本机所有地上和地下服务。" 10 60
             dst_stop_all
+            get_master_and_caves_status
             whiptail_progress_bar
         fi
 
@@ -740,6 +777,7 @@ function loop()
         then
             whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
             dst_stop_all
+            get_master_and_caves_status
             whiptail_progress_bar
             update_steamcmd
             whiptail_progress_bar
@@ -748,6 +786,7 @@ function loop()
         if [[ "$option" =~ "uninstall clean" ]]
         then
             whiptail --title "uninstall ?" --yesno "" 5 60
+            dst_stop_all && sleep 3
             uninstall
             whiptail_progress_bar
 	        exit 0
@@ -789,6 +828,8 @@ function loop()
         # then
         #     whiptail_progress_bar
         # fi
+
+        get_master_and_caves_status
     done
 }
 
