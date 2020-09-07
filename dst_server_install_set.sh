@@ -445,6 +445,7 @@ function dst_set()
             cd $script_root_dir
             cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$cluster_name/
             rm -rf $HOME/.klei/DoNotStarveTogether/$cluster_name/dedicated_server_mods_setup.lua
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "cre_new_wor" ]]
@@ -457,6 +458,7 @@ function dst_set()
                 cd $script_root_dir
                 cp -r ./.klei/DoNotStarveTogether/MyDediServer/* $HOME/.klei/DoNotStarveTogether/$new_cluster_name/
                 rm -rf $HOME/.klei/DoNotStarveTogether/$new_cluster_name/dedicated_server_mods_setup.lua
+                whiptail_progress_bar
             else
                 whiptail --title "message" --msgbox "存档名不能为空！" 10 60
             fi
@@ -466,49 +468,63 @@ function dst_set()
         then
             whiptail --title "请仔细阅读配置文件！" --yesno "1：初次部署服务，默认地上地下在同一服务器,配置 cluster_name，cluster_description，cluster_password 这些选项即可。\n\n2：如需地上地下服务器分离，配置 bind_ip = 0.0.0.0 && master_ip=master_server_ip_address，即可。\n\n" 15 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster.ini
+            whiptail_progress_bar
         fi
 
 
         if [[ "$dst_set_option" =~ "set token" ]]
         then
             whiptail --title "message" --yesno "                  你将配置 token 文件。" 10 60
-            echo $(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3) > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
+            token_value=$(whiptail --title "token config" --inputbox "\n                   请输入你的 token。" 10 60 3>&1 1>&2 2>&3)
+            if [[ "$token_value" == "" ]]
+            then
+                whiptail --title "token invalid!" --msgbox "" 5 60
+            else
+                echo "$token_value" > $HOME/.klei/DoNotStarveTogether/$cluster_name/cluster_token.txt
+                whiptail_progress_bar
+            fi
         fi
 
         if [[ "$dst_set_option" =~ "set master" ]]
         then
             whiptail --title "message" --yesno "               你将编辑地上资源配置文件。" 10 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Master/worldgenoverride.lua
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "set caves" ]]
         then
             whiptail --title "message" --yesno "               你将编辑地下资源配置文件。" 10 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/Caves/worldgenoverride.lua
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "set block" ]]
         then
             whiptail --title "message" --yesno "你将编辑黑名单，日志（server_log.txt）中找对应的 SteamID64，添加到文件。" 10 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/blocklist.txt
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "set white" ]]
         then
             whiptail --title "message" --yesno "你将编辑白名单（服务器为白名单玩家保留席位）。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/whitelist.txt
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "set admin" ]]
         then
             whiptail --title "message" --yesno "你将编辑管理员（user_id）名单。\n例如：\nKU_3N5KE2Zp\nKU_BJY3CxYT\nKU_vvbUjgIX\n..." 15 60
             vim $HOME/.klei/DoNotStarveTogether/$cluster_name/adminlist.txt
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "download mod" ]]
         then
             whiptail --title "message" --yesno "                你将编辑需要下载的 mod。" 10 60
             vim $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua
+            whiptail_progress_bar
         fi
 
         if [[ "$dst_set_option" =~ "on_of_s mod" ]]
@@ -527,10 +543,10 @@ function dst_set()
             return
         fi
 
-        if [[ "$dst_set_option" != "" ]]
-        then
-            whiptail_progress_bar
-        fi
+        # if [[ "$dst_set_option" != "" ]]
+        # then
+        #     whiptail_progress_bar
+        # fi
 
     done
 }
