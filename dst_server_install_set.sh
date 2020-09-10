@@ -816,6 +816,8 @@ function loop()
             "push" "git push origin master" off \
             "pull" "git pull origin master" off 3>&1 1>&2 2>&3)
 
+            echo $git_option
+
             if [[ "$git_option" == "push" ]]
             then
                 cd $script_root_dir && git add ./
