@@ -816,28 +816,29 @@ function loop()
             "push" "git push origin master" off \
             "pull" "git pull origin master" off 3>&1 1>&2 2>&3)
 
-            echo $git_option
-
-            if [[ "$git_option" == "push" ]]
+            if [ ! -z $git_option ]
             then
-                cd $script_root_dir && git add ./
-                if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
+                if [[ "$git_option" == "push" ]]
                 then
-                    whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
+                    cd $script_root_dir && git add ./
+                    if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
+                    then
+                        whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
+                    else
+                        username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
+                        password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
+                        expect -c "
+                            spawn git push origin master
+                            expect {
+                                Username {send $username\n; exp_continue}
+                                Password {send $password\n; exp_continue}
+                            }
+                            exit 0
+                        "
+                    fi
                 else
-                    username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
-                    password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
-                    expect -c "
-                        spawn git push origin master
-                        expect {
-                            Username {send $username\n; exp_continue}
-                            Password {send $password\n; exp_continue}
-                        }
-                        exit 0
-                    "
+                    git pull origin master
                 fi
-            else
-                git pull origin master
             fi
             whiptail_progress_bar
         fi
