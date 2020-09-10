@@ -243,6 +243,7 @@ function install_dst()
 
 function get_master_and_caves_status()
 {
+
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
         # master_status="wait"
