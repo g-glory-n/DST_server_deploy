@@ -609,7 +609,7 @@ function loop()
             done
             while true
             do
-                if [ -z $run_info_list ]
+                if [ -z "$run_info_list" ]
                 then
                     whiptail --title "没有正在运行的服务" --yesno "" 5 60
                     break
@@ -816,8 +816,8 @@ function loop()
             "push" "git push origin master" off \
             "pull" "git pull origin master" off 3>&1 1>&2 2>&3)
 
-            if [ ! -z $git_option ]
-            then
+            # if [ ! -z $git_option ]
+            # then
                 if [[ "$git_option" == "push" ]]
                 then
                     cd $script_root_dir && git add ./
@@ -839,7 +839,7 @@ function loop()
                 else
                     git pull origin master
                 fi
-            fi
+            # fi
             whiptail_progress_bar
         fi
 
