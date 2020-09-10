@@ -13,7 +13,9 @@ reset_cluster_name=""
 select_archive_name=""
 
 master_status="stop"
+master_status_wait=""
 caves_status="stop"
+caves_status_wait=""
 
 
 
@@ -245,20 +247,28 @@ function get_master_and_caves_status()
 {
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
-        # master_status="wait"
+        master_status_wait=""
         master_status="stop"
     else
-        # master_status="wait"
-        master_status="start"
+        if [[ "$master_status_wait" == "wait" ]]
+        then
+            master_status="wait"
+        else
+            master_status="start"
+        fi
     fi
 
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" == "" ]]
     then
-        # caves_status="wait"
+        caves_status_wait=""
         caves_status="stop"
     else
-        # caves_status="wait"
-        caves_status="start"
+        if [[ "$caves_status_wait" == "wait" ]]
+        then
+            caves_status="wait"
+        else
+            caves_status="start"
+        fi
     fi
 }
 
@@ -295,6 +305,7 @@ function dst_master_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name  | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Master | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+        master_status_wait="wait"
     # else
         # whiptail --title "message" --msgbox "待结束地上世界进程不存在！" 10 60
     fi
@@ -305,6 +316,7 @@ function dst_caves_stop()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep Caves | grep -v dmS | grep $cluster_name | awk '{print $2}') &
+        caves_status_wait="wait"
     # else
         # whiptail --title "message" --msgbox "待结束地下世界进程不存在！" 10 60
     fi
@@ -315,6 +327,8 @@ function dst_stop_all()
     if [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}')" != "" ]]
     then
         sudo kill -2 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') && sleep 10 && [[ "$(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print$2}')" != "" ]] && sudo kill -9 $(ps -ef | grep ./dontstarve_dedicated_server_nullrenderer | grep -v dmS | grep -v grep | awk '{print $2}') &
+        master_status_wait="wait"
+        caves_status_wait="wait"
     # else
         # whiptail --title "message" --msgbox "待结束饥荒进程不存在！" 10 60
     fi
@@ -816,8 +830,8 @@ function loop()
             "push" "git push origin master" off \
             "pull" "git pull origin master" off 3>&1 1>&2 2>&3)
 
-            # if [ ! -z $git_option ]
-            # then
+            if [ ! -z $git_option ]
+            then
                 if [[ "$git_option" == "push" ]]
                 then
                     cd $script_root_dir && git add ./
@@ -839,7 +853,7 @@ function loop()
                 else
                     git pull origin master
                 fi
-            # fi
+            fi
             whiptail_progress_bar
         fi
 
