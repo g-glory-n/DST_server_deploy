@@ -1,6 +1,5 @@
 #!/bin/bash -e
 
-# dadsadas
 
 
 script_root_dir=$(pwd)
