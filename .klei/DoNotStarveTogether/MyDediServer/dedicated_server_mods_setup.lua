@@ -9,20 +9,24 @@
     --The Workshop id can be found at the end of the url to the collection's Workshop page.
     --Example: http://steamcommunity.com/sharedfiles/filedetails/?id=379114180
     --ServerModCollectionSetup("379114180")
- 
+
+
+
+-- Collection ID 可从 steam 饥荒社区创意工坊合集中 url 的 id=xxx... 得到。
+ServerModCollectionSetup("2203294008")   -- 虚荣
 
 
 
 -- mod_id 可从 steam 饥荒社区创意工坊中 mod 的 url 的 id=xxx... 得到。
-ServerModSetup("347079953")           -- display food values(显示食物属性)
-ServerModSetup("661253977")           -- 灵魂携带物品
-ServerModSetup("2078243581")          -- display attack range(显示攻击距离)
-ServerModSetup("375850593")           -- extra equio slots(5 装备栏)
-ServerModSetup("1207269058")          -- 简易血条
-ServerModSetup("374550642")           -- increased stack size(增加堆叠)
-ServerModSetup("378160973")           -- global positions(全局共享位置)
-ServerModSetup("758532836")           -- global pause(全局暂停)
-ServerModSetup("466732225")           -- no thermal stone durability(暖石无耐久)
+-- ServerModSetup("347079953")           -- display food values(显示食物属性)
+-- ServerModSetup("661253977")           -- 灵魂携带物品
+-- ServerModSetup("2078243581")          -- display attack range(显示攻击距离)
+-- ServerModSetup("375850593")           -- extra equio slots(5 装备栏)
+-- ServerModSetup("1207269058")          -- 简易血条
+-- ServerModSetup("374550642")           -- increased stack size(增加堆叠)
+-- ServerModSetup("378160973")           -- global positions(全局共享位置)
+-- ServerModSetup("758532836")           -- global pause(全局暂停)
+-- ServerModSetup("466732225")           -- no thermal stone durability(暖石无耐久)
 -- ServerModSetup("462372013")           -- always fresh(冰箱永久保鲜)
 -- ServerModSetup("1422039508")          -- gorge crops(农场)
 -- ServerModSetup("356930882")           -- infinite tent uses(帐篷无耐久)
@@ -45,6 +49,7 @@ ServerModSetup("466732225")           -- no thermal stone durability(暖石无�
 -- ServerModSetup("1229419678")          -- 吃屎带全局通告
 -- 
 -- 
+--
 -- ServerModSetup("1402122582")          -- giant size
 -- ServerModSetup("1908933602")          -- feast and famine
 -- ServerModSetup("925172054")           -- ganja
@@ -69,9 +74,11 @@ ServerModSetup("466732225")           -- no thermal stone durability(暖石无�
 -- ServerModSetup("2140654891")          -- the food pack(outdatad)
 -- 
 -- 
+--
 -- ServerModSetup("1378549454")          -- [API]gem core(API 模块)
 -- 
 -- 
+--
 -- ServerModSetup("1467214795")          -- island adventyres(海难 mod)
 -- ServerModSetup("1467200656")          -- island adventures assets(海难 mod 额外内容)
 -- 
@@ -87,6 +94,7 @@ ServerModSetup("466732225")           -- no thermal stone durability(暖石无�
 -- ServerModSetup("1289779251")          -- cherry forest(樱桃森林)
 -- 
 -- 
+--
 -- ServerModSetup("1699194522")          -- 神话书说角色
 -- ServerModSetup("1991746508")          -- 神话书说
 -- 
