@@ -581,7 +581,7 @@ function loop()
         while true
         do
             cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
-            if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
+            if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ] && [ ! -z $cluster_name ]
             then
                 get_master_and_caves_status
                 break
