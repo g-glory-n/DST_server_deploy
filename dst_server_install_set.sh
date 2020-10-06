@@ -597,7 +597,7 @@ function loop()
     do
         # wait
         option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
-        "\n   master -> $master_status    caves -> $caves_status" 25 43 17 \
+        "\n   master -> $master_status    caves -> $caves_status" 26 43 18 \
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
@@ -610,6 +610,7 @@ function loop()
         "backup" "创建存档备份" off \
         "restore" "恢复存档备份" off \
         "clean archive" "清除存档备份" off \
+        "server move" "最近服务迁移" off \
         "update steamcmd" "更新服务平台" off \
         "uninstall clean" "卸载清除依赖" off \
         "git push/pull" "更新脚本仓库" off \
