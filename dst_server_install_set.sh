@@ -843,19 +843,18 @@ function loop()
                     if [[ $(git commit ./ -m "first commit") =~ "nothing to commit, working tree clean" ]]
                     then
                         whiptail --title "message" --msgbox "nothing to commit, working tree clean." 7 60
-                    # else
                     fi
-                        username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
-                        password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
-                        expect -c "
-                            spawn git push origin master
-                            expect {
-                                Username {send $username\n; exp_continue}
-                                Password {send $password\n; exp_continue}
-                            }
-                            exit 0
-                        "
-                    # fi
+
+                    username=$(whiptail --title "please input your github username" --inputbox "" 7 60 "g-glory-n" 3>&1 1>&2 2>&3)
+                    password=$(whiptail --title "please input your github password" --passwordbox "" 7 60 "" 3>&1 1>&2 2>&3)
+                    expect -c "
+                        spawn git push origin master
+                        expect {
+                            Username {send $username\n; exp_continue}
+                            Password {send $password\n; exp_continue}
+                        }
+                        exit 0
+                    "
                 else
                     git pull origin master
                 fi
