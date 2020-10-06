@@ -111,6 +111,7 @@ function install_rely()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
+            # steamcmd 依赖 32 位库，所以需要安装 32 位相关依赖。
             sudo dpkg --add-architecture i386 # steamcmd 依赖 32 位库，让系统接受 i386 架构的安装包。
             sudo apt-get update
             if ! sudo apt-get install -y libstdc++6:i386 libgcc1:i386 libcurl4-gnutls-dev:i386 libsdl2-dev screen vim expect
@@ -144,6 +145,7 @@ function install_rely()
         # 分辨位数。
         if [ $(getconf WORD_BIT) = '32' ] && [ $(getconf LONG_BIT) = '64' ]
         then
+            # steamcmd 依赖 32 位库，所以需要安装 32 位相关依赖。
             if ! sudo yum install -y glibc.i686 libstdc++.i686 libcurl.i686 screen vim expect
             then
                 whiptail --title "install rely failed!" --yesno "安装依赖失败，更新所有软件并重试（$ sudo yum update -y）？" 10 60
