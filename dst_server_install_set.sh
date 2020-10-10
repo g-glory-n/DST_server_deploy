@@ -393,12 +393,10 @@ function clean_archive()
 
 
 
-function update_steamcmd()
-{
-    cd $steam_dir && rm -rf ./*
-    cd $HOME && rm -rf ./Steam/
-    install_steamcmd && cd $steam_dir && ./steamcmd.sh +exit
-}
+# function update_steamcmd()
+# {
+#     cd $steam_dir && ./steamcmd.sh +exit # 自动更新 steamcmd。
+# }
 
 
 
@@ -597,11 +595,11 @@ function loop()
     do
         # wait
         option=$(whiptail --title "当前存档指向：$cluster_name" --ok-button "确定" --cancel-button "退出" --checklist \
-        "\n   master -> $master_status    caves -> $caves_status" 26 43 18 \
+        "\n     master -> $master_status    caves -> $caves_status" 25 46 17 \
         "show run_info" "显示运行信息" off \
         "cluster name" "设置目标存档" off \
         "dst config" "配置饥荒服务" off \
-        "update dst" "更新饥荒服务" off \
+        "update dst & steam" "更新游戏服务" off \
         "start master" "开启地上世界" off \
         "start caves" "开启地下世界" off \
         "stop master" "关闭地上世界" off \
@@ -611,11 +609,11 @@ function loop()
         "restore" "恢复存档备份" off \
         "clean archive" "清除存档备份" off \
         "server move" "最近服务迁移" off \
-        "update steamcmd" "更新服务平台" off \
         "uninstall clean" "卸载清除依赖" off \
         "git push/pull" "更新脚本仓库" off \
         "help" "脚本帮助文档" off \
         "exit" "退出脚本页面" off 3>&1 1>&2 2>&3)
+        # "update steamcmd" "更新服务平台" off \
 
 
         if [[ "$option" =~ "show run_info" ]]
@@ -810,15 +808,15 @@ function loop()
             fi
         fi
 
-        if [[ "$option" =~ "update steamcmd" ]]
-        then
-            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
-            dst_stop_all
-            get_master_and_caves_status
-            whiptail_progress_bar
-            update_steamcmd
-            whiptail_progress_bar
-        fi
+        # if [[ "$option" =~ "update steamcmd" ]]
+        # then
+        #     whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
+        #     dst_stop_all
+        #     get_master_and_caves_status
+        #     whiptail_progress_bar
+        #     update_steamcmd
+        #     whiptail_progress_bar
+        # fi
 
         if [[ "$option" =~ "uninstall clean" ]]
         then
