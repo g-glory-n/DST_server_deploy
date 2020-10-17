@@ -627,7 +627,7 @@ function loop()
             done
             while true
             do
-                if [ -z "$run_info_list" ]
+                if [ -z $run_info_list ]
                 then
                     whiptail --title "没有正在运行的服务" --yesno "" 5 60
                     break
@@ -744,24 +744,32 @@ function loop()
                 whiptail_progress_bar
                 whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
 
-                # echo $option
-                archive_list=
-                for list in $(ls $HOME/.klei/backup/)
+                while true
                 do
-                    temp_list=${list%.*}
-                    temp_list=${temp_list%---*}
-                    temp_list=${temp_list%---*}
-                    archive_list="$archive_list $list $temp_list off"
+                    if [ -z $(ls $HOME/.klei/backup/) ]
+                    then
+                        whiptail --title "无已备份存档" --msgbox "" 5 60
+                        break
+                    fi
+
+                    archive_list=
+                    for list in $(ls $HOME/.klei/backup/)
+                    do
+                        temp_list=${list%.*}
+                        temp_list=${temp_list%---*}
+                        temp_list=${temp_list%---*}
+                        archive_list="$archive_list $list $temp_list off"
+                    done
+                    # echo -e "$archive_list"
+                    select_archive_name=$(whiptail --title "恢复存档" --radiolist \
+                    "" 20 68 14 \
+                    $archive_list 3>&1 1>&2 2>&3)
+                    # echo "$select_archive_name"
+                    select_archive_name=$(echo "${select_archive_name##\"}")
+                    # echo "$select_archive_name"
+                    select_archive_name=$(echo "${select_archive_name%\"}")
+                    # echo "$select_archive_name"
                 done
-                # echo -e "$archive_list"
-                select_archive_name=$(whiptail --title "恢复存档" --radiolist \
-                "" 20 68 14 \
-                $archive_list 3>&1 1>&2 2>&3)
-                # echo "$select_archive_name"
-                select_archive_name=$(echo "${select_archive_name##\"}")
-                # echo "$select_archive_name"
-                select_archive_name=$(echo "${select_archive_name%\"}")
-                # echo "$select_archive_name"
 
                 if [ ! -z $select_archive_name ]
                 then
@@ -789,15 +797,25 @@ function loop()
                 temp_list=${temp_list%---*}
                 archive_list="$archive_list $list $temp_list off"
             done
-            # echo -e "$archive_list"
-            archive_name_to_clean=$(whiptail --title "清除存档" --radiolist \
-            "" 20 68 14 \
-            $archive_list 3>&1 1>&2 2>&3)
-            # echo "$archive_name_to_clean"
-            archive_name_to_clean=$(echo "${archive_name_to_clean##\"}")
-            # echo "$archive_name_to_clean"
-            archive_name_to_clean=$(echo "${archive_name_to_clean%\"}")
-            # echo "$archive_name_to_clean"
+
+            while true
+            do
+                # echo -e "$archive_list"
+                if [ -z $archive_list ]
+                then
+                    whiptail --title "无待清除存档" --msgbox "" 5 60
+                    break
+                fi
+
+                archive_name_to_clean=$(whiptail --title "清除存档" --radiolist \
+                "" 20 68 14 \
+                $archive_list 3>&1 1>&2 2>&3)
+                # echo "$archive_name_to_clean"
+                archive_name_to_clean=$(echo "${archive_name_to_clean##\"}")
+                # echo "$archive_name_to_clean"
+                archive_name_to_clean=$(echo "${archive_name_to_clean%\"}")
+                # echo "$archive_name_to_clean"
+            done
 
             if [ ! -z $archive_name_to_clean ]
             then
