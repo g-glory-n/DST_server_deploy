@@ -873,6 +873,7 @@ function loop()
                         }
                         exit 0
                     "
+                    echo "\n\n\n"
                     expect -c "
                         spawn git push origin master
                         expect {
