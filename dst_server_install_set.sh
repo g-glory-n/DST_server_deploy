@@ -468,6 +468,7 @@ function dst_set()
         if [[ "$dst_set_option" =~ "cre_new_wor" ]]
         then
             whiptail --title "message" --msgbox "                       创建新档。" 10 60
+            new_cluster_name=""
             new_cluster_name=$(whiptail --title "新档名（小于等于 6 个汉字字符或 12 个英文字符）" --inputbox "请务必保证，输入存档名不包含于已有存档名集合！\n\n列出所有已有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n部分已有存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 3>&1 1>&2 2>&3)
             if [ ! -z $new_cluster_name ]
             then
@@ -578,6 +579,7 @@ function loop()
     then
         while true
         do
+            cluster_name=""
             cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
             if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ] && [ ! -z $cluster_name ]
             then
@@ -632,6 +634,7 @@ function loop()
                     whiptail --title "没有正在运行的服务" --yesno "" 5 60
                     break
                 fi
+                temp_0=""
                 temp_0=$(whiptail --title "选择需要查看的世界" --radiolist \
                 "" 20 44 14 \
                 $run_info_list 3>&1 1>&2 2>&3)
@@ -738,12 +741,12 @@ function loop()
 
         if [[ "$option" =~ "restore" ]]
         then
-            if whiptail --title "存档指向：$cluster_name" --yesno "恢复存档需要先备份当前指向的存档，是否继续？" 10 60
+            if whiptail --title "存档指向：$cluster_name" --yes-button "开始备份" --no-button "跳过备份" --yesno "恢复存档建议先备份当前指向的存档，是否备份当前存档？" 10 60
             then
                 backup_archive
                 whiptail_progress_bar
                 whiptail --title "存档名：${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar" --yesno "              存档位置：$HOME/./klei/backup/" 10 60
-
+            else
                 while true
                 do
                     if [ -z $(ls $HOME/.klei/backup/) ]
@@ -761,14 +764,20 @@ function loop()
                         archive_list="$archive_list $list $temp_list off"
                     done
                     # echo -e "$archive_list"
-                    select_archive_name=$(whiptail --title "恢复存档" --radiolist \
+                    select_archive_name=""
+                    if select_archive_name=$(whiptail --title "恢复存档" --radiolist \
                     "" 20 68 14 \
                     $archive_list 3>&1 1>&2 2>&3)
-                    # echo "$select_archive_name"
-                    select_archive_name=$(echo "${select_archive_name##\"}")
-                    # echo "$select_archive_name"
-                    select_archive_name=$(echo "${select_archive_name%\"}")
-                    # echo "$select_archive_name"
+                    then
+                        # echo "$select_archive_name"
+                        select_archive_name=$(echo "${select_archive_name##\"}")
+                        # echo "$select_archive_name"
+                        select_archive_name=$(echo "${select_archive_name%\"}")
+                        # echo "$select_archive_name"
+                    else
+                        whiptail --title "中断恢复" --msgbox "" 5 60
+                    fi
+                    break
                 done
 
                 if [ ! -z $select_archive_name ]
@@ -781,15 +790,13 @@ function loop()
                     restore_archive
                     whiptail_progress_bar
                 fi
-            else
-                whiptail --title "中断恢复" --msgbox "" 5 60
             fi
         fi
 
         if [[ "$option" =~ "clean archive" ]]
         then
             # echo $option
-            archive_list=
+            archive_list=""
             for list in $(ls $HOME/.klei/backup/)
             do
                 temp_list=${list%.*}
@@ -807,6 +814,7 @@ function loop()
                     break
                 fi
 
+                archive_name_to_clean=""
                 archive_name_to_clean=$(whiptail --title "清除存档" --radiolist \
                 "" 20 68 14 \
                 $archive_list 3>&1 1>&2 2>&3)
@@ -848,6 +856,7 @@ function loop()
 
         if [[ "$option" =~ "git push/pull" ]]
         then
+            git_option=""
             git_option=$(whiptail --title "git push or pull" --radiolist \
             "" 8 42 2 \
             "push" "git push origin master" off \
