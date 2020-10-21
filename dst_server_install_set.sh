@@ -801,7 +801,7 @@ function loop()
             while true
             do
                 # echo -e "$archive_list"
-                if [ -z $archive_list ]
+                if [ -z "$archive_list" ]
                 then
                     whiptail --title "无待清除存档" --msgbox "" 5 60
                     break
@@ -815,15 +815,16 @@ function loop()
                 # echo "$archive_name_to_clean"
                 archive_name_to_clean=$(echo "${archive_name_to_clean%\"}")
                 # echo "$archive_name_to_clean"
-            done
 
-            if [ ! -z $archive_name_to_clean ]
-            then
-                # rm -rf $HOME/.klei/backup/archive_name_to_clean
-                whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
-                clean_archive $archive_name_to_clean
-                whiptail_progress_bar
-            fi
+                if [ ! -z $archive_name_to_clean ]
+                then
+                    # rm -rf $HOME/.klei/backup/archive_name_to_clean
+                    whiptail --title "message" --yesno "是否确定删除该备份存档？此操作不可逆！" 10 60
+                    clean_archive $archive_name_to_clean
+                    whiptail_progress_bar
+                fi
+                break
+            done
         fi
 
         # if [[ "$option" =~ "update steamcmd" ]]
