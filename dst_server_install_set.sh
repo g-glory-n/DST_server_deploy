@@ -873,6 +873,14 @@ function loop()
                         }
                         exit 0
                     "
+                    expect -c "
+                        spawn git push origin master
+                        expect {
+                            Username {send $username\n; exp_continue}
+                            Password {send $password\n; exp_continue}
+                        }
+                        exit 0
+                    "
                 else
                     git pull origin master
                 fi
