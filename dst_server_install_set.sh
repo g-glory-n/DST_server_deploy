@@ -629,7 +629,7 @@ function loop()
             done
             while true
             do
-                if [ -z $run_info_list ]
+                if [ -z "$run_info_list" ]
                 then
                     whiptail --title "没有正在运行的服务" --yesno "" 5 60
                     break
