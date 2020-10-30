@@ -575,12 +575,24 @@ function loop()
 {
     get_root
 
-    if [ ! -d $HOME/.klei/DoNotStarveTogether/MyDediServer/ ]
-    then
+    # if [ ! -d $HOME/.klei/DoNotStarveTogether/MyDediServer/ ]
+    # then
         while true
         do
+            archive_list=
+            for list in $(ls $HOME/.klei/DoNotStarveTogether/)
+            do
+                temp_list=${list%.*}
+                temp_list=${temp_list%---*}
+                temp_list=${temp_list%---*}
+                archive_list="$archive_list $list $temp_list off"
+            done
             cluster_name=""
-            cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+            cluster_name=$(whiptail --title "选择存档" --radiolist \
+"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 40 14 $archive_list 3>&1 1>&2 2>&3)
+
+            # cluster_name=""
+            # cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
             if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ] && [ ! -z $cluster_name ]
             then
                 get_master_and_caves_status
@@ -589,7 +601,7 @@ function loop()
                 whiptail --title "存档不存在，请重更新输入！" --yesno "" 5 60
             fi
         done
-    fi
+    # fi
 
     get_master_and_caves_status
 
@@ -657,8 +669,20 @@ function loop()
         then
             while true
             do
-                cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
-                if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ]
+                archive_list=
+                for list in $(ls $HOME/.klei/DoNotStarveTogether/)
+                do
+                    temp_list=${list%.*}
+                    temp_list=${temp_list%---*}
+                    temp_list=${temp_list%---*}
+                    archive_list="$archive_list $list $temp_list off"
+                done
+                cluster_name=""
+                cluster_name=$(whiptail --title "选择存档" --radiolist \
+"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 40 14 $archive_list 3>&1 1>&2 2>&3)
+
+                # cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
+                if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ] && [ ! -z $cluster_name ]
                 then
                     get_master_and_caves_status
                     whiptail_progress_bar
