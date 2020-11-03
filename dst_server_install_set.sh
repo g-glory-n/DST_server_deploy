@@ -582,14 +582,18 @@ function loop()
             archive_list=
             for list in $(ls $HOME/.klei/DoNotStarveTogether/)
             do
-                temp_list=${list%.*}
-                temp_list=${temp_list%---*}
-                temp_list=${temp_list%---*}
-                archive_list="$archive_list $list $temp_list off"
+                cluster_name=$list
+                get_master_and_caves_status
+                if [[ "$master_status" == "stop" ]] && [[ "$caves_status" == "stop" ]]
+                then
+                    archive_list="$archive_list $list 已停止 off"
+                else
+                    archive_list="$archive_list $list 在运行 off"
+                fi
             done
             cluster_name=""
             cluster_name=$(whiptail --title "选择存档" --radiolist \
-"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 40 14 $archive_list 3>&1 1>&2 2>&3)
+"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 34 14 $archive_list 3>&1 1>&2 2>&3)
 
             # cluster_name=""
             # cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
@@ -672,14 +676,18 @@ function loop()
                 archive_list=
                 for list in $(ls $HOME/.klei/DoNotStarveTogether/)
                 do
-                    temp_list=${list%.*}
-                    temp_list=${temp_list%---*}
-                    temp_list=${temp_list%---*}
-                    archive_list="$archive_list $list $temp_list off"
+                    cluster_name=$list
+                    get_master_and_caves_status
+                    if [[ "$master_status" == "stop" ]] && [[ "$caves_status" == "stop" ]]
+                    then
+                        archive_list="$archive_list $list 已停止 off"
+                    else
+                        archive_list="$archive_list $list 在运行 off"
+                    fi
                 done
                 cluster_name=""
                 cluster_name=$(whiptail --title "选择存档" --radiolist \
-"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 40 14 $archive_list 3>&1 1>&2 2>&3)
+"启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！" 20 34 14 $archive_list 3>&1 1>&2 2>&3)
 
                 # cluster_name=$(whiptail --title "set cluster name" --inputbox "启动服务和配置模组等操作都是针对不同存档的，所以你要对需要进行操作的存档（默认档：MyDediServer）进行路径配置。\n\n请务必保证输入的正确性！\n列出所有存档：$ ls \$HOME/.klei/DoNotStarveTogether/\n当前指向存档：$cluster_name\n部分存档预览：\n$(ls $HOME/.klei/DoNotStarveTogether/)" 20 60 "MyDediServer" 3>&1 1>&2 2>&3)
                 if [ -d $HOME/.klei/DoNotStarveTogether/$cluster_name/ ] && [ ! -z $cluster_name ]
@@ -773,7 +781,7 @@ function loop()
             else
                 while true
                 do
-                    if [ -z $(ls $HOME/.klei/backup/) ]
+                    if [ -z "$(ls $HOME/.klei/backup/)" ]
                     then
                         whiptail --title "无已备份存档" --msgbox "" 5 60
                         break
