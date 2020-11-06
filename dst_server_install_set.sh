@@ -91,6 +91,69 @@ EOF
 
 
 
+function progress_bar()
+{
+    local progress_bar_i=0
+    local progress_bar_index_color=4 # 0(黑), 1(红), 2(绿), 3(黄), 4(蓝), 5(洋红), 6(青), 7(白)
+    local progress_bar_color=$((30+progress_bar_index_color))
+    local progress_bar_window_width=$(stty size|awk '{print $2}')
+    ((progress_bar_window_width=progress_bar_window_width-13))
+    local progress_bar_str_sharp=""
+    local progress_bar_j=$(echo "scale=2; 100/${progress_bar_window_width}" | bc)
+    local progress_bar_k=$(echo "scale=2; 100/${progress_bar_window_width}" | bc)
+    local progress_bar_arr=("|" "/" "-" "\\")
+    
+    echo -e "\033[36m\ntask progress: \n\033[0m" # 36 青色前景
+    while [ $progress_bar_i -le 100 ]
+    do
+        progress_bar_index=$((progress_bar_i%4))
+    
+        if [ ${progress_bar_window_width} -le 100 ]
+        then
+            printf "\e[0;$progress_bar_color;1m[%-${progress_bar_window_width}s][%.2f%%] %c\r" "$progress_bar_str_sharp" "$progress_bar_i" "${progress_bar_arr[$progress_bar_index]}"
+    
+            if [ "$(echo "${progress_bar_i}>=${progress_bar_k}" | bc)" == "1" ]
+            then
+                progress_bar_str_sharp+='#'
+                progress_bar_k=$(echo "scale=2; ${progress_bar_k}+${progress_bar_j}" | bc)
+            fi
+    
+            if [ ${progress_bar_i} -eq 100 ]
+            then
+                printf "\e[0;$progress_bar_color;1m[%-${progress_bar_window_width}s][%.2f%%] %c\r" "$progress_bar_str_sharp" "$progress_bar_i" " "
+                printf "\n"
+            fi
+        else
+            if [ "$(echo "${progress_bar_i}>=${progress_bar_k}" | bc)" == "1" ]
+            then
+                while [ 1 ]
+                do
+                    if [ "$(echo "${progress_bar_i}<=${progress_bar_k}" | bc)" == "1" ]
+                    then
+                        break
+                    fi
+    
+                    printf "\e[0;$progress_bar_color;1m[%-${progress_bar_window_width}s][%.2f%%] %c\r" "$progress_bar_str_sharp" "$progress_bar_i" "${progress_bar_arr[$progress_bar_index]}"
+    
+                    progress_bar_str_sharp+='#'
+                    progress_bar_k=$(echo "scale=2; ${progress_bar_k}+${progress_bar_j}" | bc)
+                done
+    
+                if [ ${progress_bar_i} -eq 100 ]
+                then
+                    printf "\e[0;$progress_bar_color;1m[%-${progress_bar_window_width}s][%.2f%%] %c\r" "$progress_bar_str_sharp" "$progress_bar_i" " "
+                fi
+            fi
+        fi
+        progress_bar_i=$((progress_bar_i+1))
+    
+        sleep 0.01
+    done
+    echo -e "\033[0m" # 用于设置默认前景色背景色
+}
+
+
+
 function install_judge()
 {
     if [ -d $HOME/.klei/ ] && [ -d $install_dir ] || [ -d /root/.klei/ ] && [ -d /root/steam_dst/ ]
@@ -287,7 +350,7 @@ function dst_master_start()
         whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         screen -dmS ${cluster_name}_dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
     else
-        whiptail --title "message" --msgbox "存档指向的地上世界已经开启，请勿重复开启！" 10 60
+        whiptail --title "message" --msgbox "存档指向的地上世界已经开启或正在关闭，请勿重复开启或等待开启！" 10 60
     fi
 }
 
@@ -299,7 +362,7 @@ function dst_caves_start()
         whiptail --title "message" --yesno "开启世界需要时间（大概：2 min），请内心等待。\n\n查看会话序号：screen -ls\n\n查看启动日志：screen -r session_id/session_name" 12 60
         screen -dmS ${cluster_name}_dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
     else
-        whiptail --title "message" --msgbox "存档指向的地下世界已经开启，请勿重复开启！" 10 60
+        whiptail --title "message" --msgbox "存档指向的地下世界已经开启或正在关闭，请勿重复开启或等待开启！" 10 60
     fi
 }
 
@@ -712,9 +775,43 @@ function loop()
 
         if [[ "$option" =~ "update dst" ]]
         then
-            whiptail --title "message" --yesno "       更新过程将停止地上和地下服务，需要手动启动。" 10 60
+            whiptail --title "message" --yesno "更新过程将停止所有地上和地下服务，当前存档自动启动，恢复先前状态，其他存档需要手动启动。" 10 60
+
+            tmp_master=""
+	    tmp_caves=""
+            if [[ "$master_status" == "start" ]]
+            then
+                tmp_master="start"
+            fi
+            if [[ "$caves_status" == "start" ]]
+            then
+                tmp_caves="start"
+            fi
+		   
             dst_stop_all
+            whiptail_progress_bar
             update_dst
+            whiptail_progress_bar
+            # get_master_and_caves_status
+            master_status_wait="stop"
+            caves_status_wait="stop"
+
+            if [[ "$tmp_master" == "start" ]]
+            then
+                cd $dst_dir/bin/
+                screen -dmS ${cluster_name}_dst_master ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Master &
+                # dst_master_start
+                progress_bar
+                echo -e "\033[31m已开启当前存档指向的地上世界！\033[0m"
+            fi
+            if [[ "$tmp_caves" == "start" ]]
+            then
+                cd $dst_dir/bin/
+                screen -dmS ${cluster_name}_dst_caves ./dontstarve_dedicated_server_nullrenderer -console -cluster "$cluster_name" -shard Caves &
+                # dst_caves_start
+                echo -e "\033[31m已开启当前存档指向的地下世界！\033[0m"
+            fi
+
             get_master_and_caves_status
             whiptail_progress_bar
         fi
