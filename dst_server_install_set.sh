@@ -416,6 +416,7 @@ function backup_archive()
     cd $HOME/.klei/DoNotStarveTogether/$cluster_name/
     cp -r $HOME/steam_dst/dst/mods/dedicated_server_mods_setup.lua ./
     tar -cvf $HOME/.klei/backup/${cluster_name}---$(date +%Y_%m_%d---%H_%M_%S).tar ./
+    rm -rf ./dedicated_server_mods_setup.lua
 }
 
 
