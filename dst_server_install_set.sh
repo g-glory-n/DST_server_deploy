@@ -768,7 +768,9 @@ function loop()
         if [[ "$option" =~ "dst config" ]]
         then
             whiptail --title "message" --yesno "       配置过程将停止地上和地下服务，需要手动启动。" 10 60
-            dst_stop_all
+            # dst_stop_all
+	    dst_master_stop
+	    dst_caves_stop
             get_master_and_caves_status
             whiptail_progress_bar
             dst_set
