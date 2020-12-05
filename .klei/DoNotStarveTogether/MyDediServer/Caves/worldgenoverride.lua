@@ -10,6 +10,7 @@ return {
         world_size = "huge",                    -- 创世界大小："small", "medium", "default", "huge"
         branching = "default",                  -- 创世界分支："never", "least", "default", "most"
         loop = "default",                       -- 创世界循环："never", "default", "always"
+        specialevent = "default",               -- 活动："default", "winters_feast", "year_of_the_carrat", ...
         weather = "default",                    -- 雨
         earthquakes = "default",                -- 地震
         regrowth = "default",                   -- 世界再生："veryslow", "slow", "default", "fast", "veryfast"

@@ -10,7 +10,7 @@ return {
         world_size = "huge",                    -- 创世界大小："small", "medium", "default", "huge"
         branching = "default",                  -- 创世界分支："never", "least", "default", "most"
         loop = "default",                       -- 创世界循环："never", "default", "always"
-        specialevent = "default",               -- 活动
+        specialevent = "default",               -- 活动："default", "winters_feast", "year_of_the_carrat", ...
         autumn = "verylongseason",              -- 秋："noseason", "veryshortseason", "shortseason", "default", "longseason", "verylongseason", "random"
         winter = "shortseason",                 -- 冬："noseason", "veryshortseason", "shortseason", "default", "longseason", "verylongseason", "random"
         spring = "shortseason",                 -- 春："noseason", "veryshortseason", "shortseason", "default", "longseason", "verylongseason", "random"
