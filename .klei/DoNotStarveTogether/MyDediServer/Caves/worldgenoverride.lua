@@ -15,10 +15,10 @@ return {
         earthquakes = "default",                -- 地震
         regrowth = "default",                   -- 世界再生："veryslow", "slow", "default", "fast", "veryfast"
         touchstone = "default",                 -- 试金石
-        boons = "often",                        -- 失败的冒险家
-        cavelight = "slow",                     -- 洞穴光照："veryslow", "slow", "default", "fast", "veryfast"
+        boons = "default",                      -- 失败的冒险家
+        cavelight = "default",                  -- 洞穴光照："veryslow", "slow", "default", "fast", "veryfast"
         disease_delay="none",                   -- 疾病："none", "random", "slow", "default", "fast"
-        prefabswaps_start = "highly random",    -- 开始资源多样化："classic", "default", "highly random"
+        prefabswaps_start = "default",          -- 开始资源多样化："classic", "default", "highly random"
   
         -- 洞穴资源
         grass = "default",                      -- 草
@@ -30,13 +30,13 @@ return {
         rock = "default",                       -- 巨石
         mushtree = "default",                   -- 磨菇树
         fern = "default",                       -- 洞穴蕨类
-        flower_cave = "often",                  -- 发光花
-        wormlights = "often",                   -- 发光浆果
+        flower_cave = "default",                -- 发光花
+        wormlights = "default",                 -- 发光浆果
   
         -- 洞穴食物
         berrybush = "default",                  -- 浆果丛
         mushroom = "default",                   -- 蘑菇
-        banana = "often",                       -- 洞穴香蕉
+        banana = "default",                     -- 洞穴香蕉
         lichen = "default",                     -- 苔藓
   
         -- 洞穴动物
@@ -54,8 +54,8 @@ return {
         lureplants = "default",                 -- 食人花
         liefs = "default",                      -- 树精守卫
         bats = "default",                       -- 蝙蝠
-        fissure = "rare",                       -- 梦魇裂隙
-        wormattacks="rare",                     -- 洞穴蠕虫攻击
-        worms = "rare",                         -- 洞穴蠕虫
+        fissure = "default",                    -- 梦魇裂隙
+        wormattacks="default",                  -- 洞穴蠕虫攻击
+        worms = "default",                      -- 洞穴蠕虫
     },
 }
